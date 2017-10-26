@@ -11,3 +11,6 @@ gbsh: $(OBJ)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
+
+clean:
+	rm -rf *.o *.exe
