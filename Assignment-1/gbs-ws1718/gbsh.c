@@ -11,7 +11,6 @@
 
 void prompt(char *statement, char **command) {
     printf("%s", statement);
-    printf("THIS IS THE COMMAND: %s\n", *command);
     for(int i = 0; 1; i++) {
         if(i) {
             *command = (char*)realloc((*command),i+1);
@@ -25,13 +24,14 @@ void prompt(char *statement, char **command) {
             break;
         }
     }
+    //printf("%s", *command);
 }
 
 int main(int argc, char *argv[]) {
     char *command = NULL;
     do {
-        prompt("Enter the String:- ", &command);
-
+        prompt("<user>@<host> <cwd> > ", &command);
+        free(command);
     } while(strcmp(EXIT,command) != 0); // keep running unless the user types "exit"
     free(command);
     printf("Out...");
