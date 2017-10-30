@@ -13,4 +13,4 @@ gbsh: $(OBJ)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -rf *.o *.exe
+	rm -rf *.o gbsh

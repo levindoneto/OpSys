@@ -7,8 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <windows.h> // Used for getting the logged user
-#include <Lmcons.h>
 #include "gbsh.h"
 
 #define EXIT "exit"
@@ -36,11 +34,14 @@ void storeInfo (UserInfo *infoUser) {
     getcwd(cwd, sizeof(cwd));
     infoUser->cwd = cwd;
     /* Logged username */
-    char username[UNLEN+1];
-    DWORD username_len = UNLEN+1;
-    GetUserName(username, &username_len);
-    infoUser->user = username; //ToDo: Modify for unix implementation
-    /* Logged Host */
+    char *username = getenv("USER");
+	if (username==NULL) {
+		printf("User hasn't been found");
+	}
+	else {
+		infoUser->user = username;
+   	}
+	/* Logged Host */
     //char hostname[1024];
     //gethostname(hostname, 1024);
     infoUser->host = "host"; //ToDo: Modify for unix implementation
