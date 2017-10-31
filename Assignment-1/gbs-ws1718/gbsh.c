@@ -14,10 +14,14 @@
 #define PWD "pwd"
 #define SUMMAX "sum-max"
 #define MIN 1
-#define MAX 5 // Matrices with max 5 rows and 5 columns
+#define MAX 5 // Matrices contain max 5 rows and 5 columns
+#define MINELEMENT 0 // Minimum value for the random matrices
+#define MAXELEMENT 100 // Maximum value for the random matrices
 
 void prompt(UserInfo userInformation, char **command) {
     int matrix_size;
+    int **inputA;
+    int **inputB;
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     int i;
     for(i = 0; 1; i++) {
@@ -37,7 +41,19 @@ void prompt(UserInfo userInformation, char **command) {
         pwd();
     }
     else if (strcmp(SUMMAX, *command) == 0) {
-        matrix_size = generateRandomSize (MIN, MAX);
+        matrix_size = generateRandomValue (MIN, MAX);
+        inputA = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
+        inputB = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
+        printf("no seg fault!\n");
+        /* test
+        int a,b;
+        for (a=0; a<matrix_size; a++) {
+            for (b=0; b<matrix_size; b++){
+                printf(" %d", inputA[a][b]);
+            }
+            printf("\n");
+        }
+        */
     }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);

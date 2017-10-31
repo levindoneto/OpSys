@@ -12,13 +12,14 @@ int **summax (int size, int **inputA, int **inputB);
  * @Parameters: Int: Min value, Max Value
  * @Return: Int: Random value
  */
-int generateRandomSize (int min, int max);
+int generateRandomValue (int min, int max);
 
 /* Create a matrix with random values
- * @Parameters: Int: Size (number of columns and rows of the matrix)
+ * @Parameters: Int: Size (number of columns and rows of the matrix),
+ 				minimum and maximum value
  * @Return: **Int: Matrix
  */
-int **createRandomMatrix (int size);
+int **createRandomMatrix (int size,  int min_element_value, int max_element_value);
 
 /* Free memory for an allocated matrix
  * @Parameters: Int**: Allocated matrix, Int: Size of the matrix
