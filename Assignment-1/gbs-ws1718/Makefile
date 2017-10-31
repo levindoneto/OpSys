@@ -1,14 +1,14 @@
-# GBSH Shell Makefile
+# GBS Shell Makefile
 
 CC = gcc
 CFLAGS  = -Wall -g
-OBJ = gbsh.o
+OBJ = gbsh.o summax.o
 
 all: gbsh
 
 gbsh: $(OBJ)
 	$(CC) $(CFLAGS) -o gbsh $(OBJ)
-
+    
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
 

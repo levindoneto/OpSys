@@ -8,11 +8,13 @@
 #include <unistd.h>
 #include <errno.h>
 #include "gbsh.h"
+#include "summax.h"
 
 #define EXIT "exit"
 #define PWD "pwd"
+#define SUMMAX "sum-max"
 
-void prompt(UserInfo userInformation, char **command) {    
+void prompt(UserInfo userInformation, char **command) {
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     for(int i = 0; 1; i++) {
         if(i) {
@@ -27,29 +29,30 @@ void prompt(UserInfo userInformation, char **command) {
             break;
         }
     }
-    if (strcmp(PWD,*command) == 0) {
+    if (strcmp(PWD, *command) == 0) {
         pwd();
     }
-    else if (strcmp(EXIT,*command) == 0) {
+    else if (strcmp(SUMMAX, *command) == 0) {
+        printf("summax(...)");
+    }
+    else if (strcmp(EXIT, *command) == 0) {
         exit(0);
     }
+    
     else {
         printf("\nUnrecognized command");
     }
-    
-   
 }
 
 void storeInfo (UserInfo *infoUser) {
     /* CWD: Current path */
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
-       infoUser->cwd = "cwd"; 
+       infoUser->cwd = "cwd";
     }
     else {
-        infoUser->cwd = cwd; 
+        infoUser->cwd = cwd;
     }
-    
     /* Logged username */
     char *username = getenv("USER");
     if (username==NULL) {
