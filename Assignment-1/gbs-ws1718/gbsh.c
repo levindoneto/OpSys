@@ -1,4 +1,4 @@
-/* Shell GBSH Development
+﻿/* Shell GBSH Development
  * Features: prompt, exit, pwd, sum-max
  * Members: Leonardo Nahra, Levindo Neto and Li Smile
  */
@@ -10,9 +10,10 @@
 #include "gbsh.h"
 
 #define EXIT "exit"
+#define PWD "pwd"
 
-void prompt(UserInfo userInformation, char **command) {
-    printf("<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
+void prompt(UserInfo userInformation, char **command) {    
+    printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     for(int i = 0; 1; i++) {
         if(i) {
             *command = (char*)realloc((*command),i+1);
@@ -26,30 +27,51 @@ void prompt(UserInfo userInformation, char **command) {
             break;
         }
     }
+    if (strcmp(PWD,*command) == 0) {
+        pwd();
+    }
+    else if (strcmp(EXIT,*command) == 0) {
+        exit(0);
+    }
+    else {
+        printf("\nUnrecognized command");
+    }
+    
+   
 }
 
 void storeInfo (UserInfo *infoUser) {
     /* CWD: Current path */
     char cwd[1024];
-	if (getcwd(cwd, sizeof(cwd)) == NULL) {
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
        infoUser->cwd = "cwd"; 
-	}
-	else {
-		infoUser->cwd = cwd; 
-	}
+    }
+    else {
+        infoUser->cwd = cwd; 
+    }
     
     /* Logged username */
     char *username = getenv("USER");
-	if (username==NULL) {
-	    infoUser->user = "user";
-	}
-	else {
-	    infoUser->user = username;
-   	}
-	/* Logged Host */
+    if (username==NULL) {
+        infoUser->user = "user";
+    }
+    else {
+        infoUser->user = username;
+    }
+    /* Logged Host */
     char hostname[1024];
     gethostname(hostname, 1024);
     infoUser->host = hostname;
+}
+
+void pwd () {
+    char currentpath[1024];
+    if (getcwd(currentpath, sizeof(currentpath)) != NULL) {
+        printf("%s", currentpath);
+    }
+    else {
+        printf("Current path");
+    }
 }
 
 int main(int argc, char *argv[]) {

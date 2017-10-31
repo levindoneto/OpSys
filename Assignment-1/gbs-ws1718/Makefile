@@ -1,4 +1,4 @@
-# GBS Shell Makefile
+# GBSH Shell Makefile
 
 CC = gcc
 CFLAGS  = -Wall -g

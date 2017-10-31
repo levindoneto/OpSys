@@ -29,4 +29,10 @@ void prompt(UserInfo userInformation,char **command);
  */
 void storeInfo (UserInfo *infoUser);
 
+/* Function that shows the user's current path (pwd command)
+ * @Parameters: None
+ * @Return: Void, it just shows the current path to the user
+ */
+void pwd ();
+
 /******************************************************************************/
