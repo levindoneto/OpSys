@@ -31,20 +31,25 @@ void prompt(UserInfo userInformation, char **command) {
 void storeInfo (UserInfo *infoUser) {
     /* CWD: Current path */
     char cwd[1024];
-    getcwd(cwd, sizeof(cwd));
-    infoUser->cwd = cwd;
+	if (getcwd(cwd, sizeof(cwd)) == NULL) {
+       infoUser->cwd = "cwd"; 
+	}
+	else {
+		infoUser->cwd = cwd; 
+	}
+    
     /* Logged username */
     char *username = getenv("USER");
 	if (username==NULL) {
-		printf("User hasn't been found");
+	    infoUser->user = "user";
 	}
 	else {
-		infoUser->user = username;
+	    infoUser->user = username;
    	}
 	/* Logged Host */
-    //char hostname[1024];
-    //gethostname(hostname, 1024);
-    infoUser->host = "host"; //ToDo: Modify for unix implementation
+    char hostname[1024];
+    gethostname(hostname, 1024);
+    infoUser->host = hostname;
 }
 
 int main(int argc, char *argv[]) {
