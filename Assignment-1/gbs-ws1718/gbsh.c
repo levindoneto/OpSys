@@ -12,7 +12,7 @@
 #define EXIT "exit"
 #define PWD "pwd"
 
-void prompt(UserInfo userInformation, char **command) {    
+void prompt(UserInfo userInformation, char **command) {
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     int i;
     for(i = 0; 1; i++) {
@@ -37,20 +37,18 @@ void prompt(UserInfo userInformation, char **command) {
     else {
         printf("\nUnrecognized command");
     }
-    
-   
 }
 
 void storeInfo (UserInfo *infoUser) {
     /* CWD: Current path */
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
-       infoUser->cwd = "cwd"; 
+       infoUser->cwd = "cwd";
     }
     else {
-        infoUser->cwd = cwd; 
+        infoUser->cwd = cwd;
     }
-    
+
     /* Logged username */
     char *username = getenv("USER");
     if (username==NULL) {
