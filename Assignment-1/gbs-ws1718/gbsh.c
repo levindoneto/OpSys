@@ -23,6 +23,7 @@ void prompt(UserInfo userInformation, char **command) {
     int **inputA;
     int **inputB;
     int **matrixD;
+    int **matrixC; // Output
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     int i;
     for(i = 0; 1; i++) {
@@ -46,20 +47,12 @@ void prompt(UserInfo userInformation, char **command) {
         inputA = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
         inputB = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
         matrixD = createMaxMatrix(inputA, inputB, matrix_size);
-        
-        /*
-        // Test
-        int a,b;
-        for (a=0; a<matrix_size; a++) {
-            for (b=0; b<matrix_size; b++){
-                printf(" %d", matrixD[a][b]);
-            }
-            printf("\n");
-        }
-        */
+        matrixC = createSumMatrix(matrixD, matrix_size);
+
         freeMatrix(inputA, matrix_size);
         freeMatrix(inputB, matrix_size);
         freeMatrix(matrixD, matrix_size);
+        freeOutput(matrixC, matrix_size);
     }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);
