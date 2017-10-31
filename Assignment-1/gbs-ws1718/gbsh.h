@@ -23,13 +23,13 @@ typedef struct UserInformation {
  */
 void prompt(UserInfo userInformation,char **command);
 
-/* Prompt that waits for an user input
+/* It stores information of the current user in a proper struct
  * @Parameters: Struct UserInfo
  * @Return: Void, it just stores data on the UserInfo struct (user, host, cwd)
  */
 void storeInfo (UserInfo *infoUser);
 
-/* Function that shows the user's current path (pwd command)
+/* It shows the user's current path (pwd command)
  * @Parameters: None
  * @Return: Void, it just shows the current path to the user
  */

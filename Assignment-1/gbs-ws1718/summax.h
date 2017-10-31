@@ -1,33 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Function that calculates the sum of the max elements based on two matrices
+/* It calculates the sum of the max elements based on two matrices
  * @Parameters: Matrices: inputA, inputB with a random number of columns and vectors
  * @Return: Array: outputC, with the sum of the max elements per column
  */
 int **summax (int size, int **inputA, int **inputB);
 
-/* Function that generates a random size value from MIN to MAX. It's used for
+/* It generates a random size value from MIN to MAX. It's used for
  * defining the number of rows and columns of the input matrixes for sum-max
  * @Parameters: Int: Min value, Max Value
  * @Return: Int: Random value
  */
 int generateRandomValue (int min, int max);
 
-/* Create a matrix with random values
+/* It creates a matrix with random values
  * @Parameters: Int: Size (number of columns and rows of the matrix),
  				minimum and maximum value
  * @Return: **Int: Matrix
  */
 int **createRandomMatrix (int size,  int min_element_value, int max_element_value);
 
-/* Free memory for an allocated matrix
+/* It makes the memory free where a matrix had been previous allocated
  * @Parameters: Int**: Allocated matrix, Int: Number of columns and rows
  * @Return: Void, it just cleans an allocated matrix
  */
 void freeMatrix(int **matrix, int size);
 
-/* Free memory for an allocated matrix of output (only one row)
+/* It makes the memory free where a matrix of output (only one row) had 
+ *been previous allocated
  * @Parameters: Int**: Allocated matrix, Int: Number of columns and rows
  * @Return: Void, it just cleans an allocated matrix
  */
@@ -41,7 +42,7 @@ int maxElement (int elementA, int elementB);
 
 /* It creates a matrix with the maximum elements from two input matrices
  * @Parameters: Int**: Matrix A, Matrix B
- * @Return: Int**: Matriz D
+ * @Return: Int**: Matrix D
  */
 int **createMaxMatrix (int **matrixA, int **matrixB, int size);
 
@@ -51,3 +52,9 @@ int **createMaxMatrix (int **matrixA, int **matrixB, int size);
  * @Return: Int**: Matrix with the sum of columns' elements from the max matrix
  */
 int **createSumMatrix (int **maxMatrix, int size);
+
+/* It prints a matrix with n_rows rows and n_columns columns 
+ * @Parameters: Int**: matrix to be printed, number of rows, number of columns
+ * @Return: Void, it just prints the matrix for the user
+ */
+void printMatrix (int **matrix, int n_rows, int n_columns);

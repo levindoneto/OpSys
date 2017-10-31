@@ -89,3 +89,12 @@ int **createSumMatrix (int **maxMatrix, int size) {
      return matrixC;
 }
 
+void printMatrix (int **matrixp, int n_rows, int n_columns) {
+    int a,b;
+    for (a=0; a < n_rows; a++) {
+        for (b = 0; b < n_columns; b++){
+            printf(" %d", matrixp[a][b]);
+        }
+        printf("\n");
+    }
+}

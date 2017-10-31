@@ -48,7 +48,17 @@ void prompt(UserInfo userInformation, char **command) {
         inputB = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
         matrixD = createMaxMatrix(inputA, inputB, matrix_size);
         matrixC = createSumMatrix(matrixD, matrix_size);
-
+        
+        /* Tests with prints */
+        printf("\nMatrix A (Input)\n");
+        printMatrix(inputA, matrix_size, matrix_size); // Square matrix
+        printf("\nMatrix B (Input)\n");
+        printMatrix(inputA, matrix_size, matrix_size); // Square matrix
+        printf("\nMatrix D (Auxiliar - Max values)\n");
+        printMatrix(matrixD, matrix_size, matrix_size); // Square matrix
+        printf("\nMatrix C (Output - Sum of the max values)\n");
+        printMatrix(matrixC, 1, matrix_size); // Matrix with just 1 row
+        
         freeMatrix(inputA, matrix_size);
         freeMatrix(inputB, matrix_size);
         freeMatrix(matrixD, matrix_size);
@@ -59,7 +69,7 @@ void prompt(UserInfo userInformation, char **command) {
     }
 
     else {
-        printf("\nUnrecognized command");
+        printf("Unrecognized command");
     }
 }
 
