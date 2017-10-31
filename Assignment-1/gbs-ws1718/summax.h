@@ -32,3 +32,9 @@ void freeMatrix(int **matrix, int size);
  * @Return: **Int: Biggest element
  */
 int maxElement (int elementA, int elementB);
+
+/* It creates a matrix with the maximum elements from two input matrices
+ * @Parameters: Int**: Matrix A, Matrix B
+ * @Return: Int**: Matriz D
+ */
+int **createMaxMatrix (int **matrixA, int **matrixB, int size);

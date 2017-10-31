@@ -22,6 +22,7 @@ void prompt(UserInfo userInformation, char **command) {
     int matrix_size;
     int **inputA;
     int **inputB;
+    int **matrixD;
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     int i;
     for(i = 0; 1; i++) {
@@ -44,18 +45,21 @@ void prompt(UserInfo userInformation, char **command) {
         matrix_size = generateRandomValue (MIN, MAX);
         inputA = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
         inputB = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
-        printf("no seg fault!\n");
-        /* test
+        matrixD = createMaxMatrix(inputA, inputB, matrix_size);
+        
+        /*
+        // Test
         int a,b;
         for (a=0; a<matrix_size; a++) {
             for (b=0; b<matrix_size; b++){
-                printf(" %d", inputA[a][b]);
+                printf(" %d", matrixD[a][b]);
             }
             printf("\n");
         }
         */
         freeMatrix(inputA, matrix_size);
         freeMatrix(inputB, matrix_size);
+        freeMatrix(matrixD, matrix_size);
     }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);
