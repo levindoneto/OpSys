@@ -16,7 +16,8 @@
 
 void prompt(UserInfo userInformation, char **command) {
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
-    for(int i = 0; 1; i++) {
+    int i;
+    for(i = 0; 1; i++) {
         if(i) {
             *command = (char*)realloc((*command),i+1);
         }
@@ -53,6 +54,7 @@ void storeInfo (UserInfo *infoUser) {
     else {
         infoUser->cwd = cwd;
     }
+
     /* Logged username */
     char *username = getenv("USER");
     if (username==NULL) {
