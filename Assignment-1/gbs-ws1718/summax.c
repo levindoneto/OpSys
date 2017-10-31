@@ -37,3 +37,11 @@ void freeMatrix(int **matrix, int size)
     }
     free(matrix); // Free rown's pointers
  }
+
+int maxElement (int elementA, int elementB) {
+    int biggest = elementA;
+    if (elementA < elementB) {
+        biggest = elementB;
+    }
+    return biggest;
+}

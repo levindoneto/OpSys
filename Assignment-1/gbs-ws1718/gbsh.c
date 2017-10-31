@@ -54,6 +54,8 @@ void prompt(UserInfo userInformation, char **command) {
             printf("\n");
         }
         */
+        freeMatrix(inputA, matrix_size);
+        freeMatrix(inputB, matrix_size);
     }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);

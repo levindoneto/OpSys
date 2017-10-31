@@ -26,3 +26,9 @@ int **createRandomMatrix (int size,  int min_element_value, int max_element_valu
  * @Return: Void, it just cleans an allocated matrix
  */
 void freeMatrix(int **matrix, int size);
+
+/* It returns the biggest element between two elements from two matrices
+ * @Parameters: Int: element from the 1st matrix, element from the 2nd matrix
+ * @Return: **Int: Biggest element
+ */
+int maxElement (int elementA, int elementB);
