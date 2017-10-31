@@ -38,7 +38,6 @@ void prompt(UserInfo userInformation, char **command) {
     }
     else if (strcmp(SUMMAX, *command) == 0) {
         matrix_size = generateRandomSize (MIN, MAX);
-        //printf("Matrix size: %d\n", matrix_size);
     }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);

@@ -13,3 +13,15 @@ int **summax (int size, int **inputA, int **inputB);
  * @Return: Int: Random value
  */
 int generateRandomSize (int min, int max);
+
+/* Create a matrix with random values
+ * @Parameters: Int: Size (number of columns and rows of the matrix)
+ * @Return: **Int: Matrix
+ */
+int **createRandomMatrix (int size);
+
+/* Free memory for an allocated matrix
+ * @Parameters: Int**: Allocated matrix, Int: Size of the matrix
+ * @Return: Void, it just cleans an allocated matrix
+ */
+void freeMatrix(int **matrix, int size);
