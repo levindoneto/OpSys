@@ -13,8 +13,11 @@
 #define EXIT "exit"
 #define PWD "pwd"
 #define SUMMAX "sum-max"
+#define MIN 1
+#define MAX 5 // Matrices with max 5 rows and 5 columns
 
 void prompt(UserInfo userInformation, char **command) {
+    int matrix_size;
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     int i;
     for(i = 0; 1; i++) {
@@ -34,12 +37,13 @@ void prompt(UserInfo userInformation, char **command) {
         pwd();
     }
     else if (strcmp(SUMMAX, *command) == 0) {
-        printf("summax(...)");
+        matrix_size = generateRandomSize (MIN, MAX);
+        //printf("Matrix size: %d\n", matrix_size);
     }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);
     }
-    
+
     else {
         printf("\nUnrecognized command");
     }

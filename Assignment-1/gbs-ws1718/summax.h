@@ -5,4 +5,11 @@
  * @Parameters: Matrices: inputA, inputB with a random number of columns and vectors
  * @Return: Array: outputC, with the sum of the max elements per column
  */
-int **summax (int length, int **inputA, int **inputB);
+int **summax (int size, int **inputA, int **inputB);
+
+/* Function that generates a random size value from MIN to MAX. It's used for
+ * defining the number of rows and columns of the input matrixes for sum-max
+ * @Parameters: Int: Min value, Max Value
+ * @Return: Int: Random value
+ */
+int generateRandomSize (int min, int max);
