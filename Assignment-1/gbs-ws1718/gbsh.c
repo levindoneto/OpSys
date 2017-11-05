@@ -1,6 +1,6 @@
 ﻿/* Shell GBSH Development
  * Features: prompt, exit, pwd, sum-max
- * Members: Leonardo Nahra, Levindo Neto and Li Smile
+ * Members: Leonardo Nahra, Levindo Neto and Li-Wei Chen
  */
 #include <stdio.h>
 #include <stdlib.h>
