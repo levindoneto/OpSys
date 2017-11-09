@@ -31,6 +31,7 @@ void prompt(UserInfo userInformation, char **command, char **directory) {
     int **matrixC; // Output
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     int i;
+
     for(i = 0; 1; i++) {
         if(i) {
             *command = (char*)realloc((*command),i+1);
@@ -39,26 +40,32 @@ void prompt(UserInfo userInformation, char **command, char **directory) {
             *command = (char*)malloc(i+1);
         }
         (*command)[i] = getchar();
-        if((*command)[i] == ' ') {
+        if((*command)[i] == '\n') { // Command without directory
             (*command)[i] = '\0';
+            *directory = (char*)malloc(1); // For not getting problems with null directories
             break;
         }
-    }
-    if (directory != NULL) {
-        for(i = 0; 1; i++) {
-            if(i) {
-                *directory = (char*)realloc((*directory),i+1);
+        else if ((*command)[i] == ' ') { // Command with dictionary
+            for(i = 0; 1; i++) {
+                if(i) {
+                    *directory = (char*)realloc((*directory),i+1);
+                }
+                else {
+                    *directory = (char*)malloc(i+1);
+                }
+                (*directory)[i] = getchar();
+                if((*directory)[i] == '\n') {
+                   (*directory)[i] = '\0';
+                    break;
+                }
             }
-            else {
-                *directory = (char*)malloc(i+1);
-            }
-            (*directory)[i] = getchar();
-            if((*directory)[i] == '\n') {
-                (*directory)[i] = '\0';
-                break;
-            }
+        
         }
     }
+
+    printf("command: %s\n", *command);
+    printf("directory: %s\n", *directory);
+    
     if (strcmp("op", *directory) == 0) {
         printf("directory is op lol\n");
     }
@@ -96,6 +103,7 @@ void prompt(UserInfo userInformation, char **command, char **directory) {
     else {
         printf("Unrecognized command");
     }
+    
 }
 
 void storeInfo (UserInfo *infoUser) {
@@ -140,8 +148,10 @@ int main(int argc, char *argv[]) {
     storeInfo(&userInformation);
     do {
         prompt(userInformation, &command, &directory);
+        free(command);
+        free(directory);
     } while(strcmp(EXIT,command) != 0); // keep running unless the user types "exit"
-    free(command);
+    
 
     return 0; // Exit the shell
 }
