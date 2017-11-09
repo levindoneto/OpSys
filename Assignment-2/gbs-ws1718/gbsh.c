@@ -7,18 +7,23 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <dirent.h>
 #include "gbsh.h"
 #include "summax.h"
 
 #define EXIT "exit"
 #define PWD "pwd"
 #define SUMMAX "sum-max"
+#define LS "ls"
 #define MIN 1
 #define MAX 5 // Matrices contain max 5 rows and 5 columns
 #define MINELEMENT 0 // Minimum value for the random matrices
 #define MAXELEMENT 100 // Maximum value for the random matrices
+#define NORMAL_COLOR  "\x1B[0m" // White
+#define DIRCOLOR  "\x1B[32m" // Green
+#define FILECOLOR  "\x1B[34m" // Blue
 
-void prompt(UserInfo userInformation, char **command) {
+void prompt(UserInfo userInformation, char **command, char **directory) {
     int matrix_size;
     int **inputA;
     int **inputB;
@@ -34,12 +39,30 @@ void prompt(UserInfo userInformation, char **command) {
             *command = (char*)malloc(i+1);
         }
         (*command)[i] = getchar();
-        if((*command)[i] == '\n') {
+        if((*command)[i] == ' ') {
             (*command)[i] = '\0';
             break;
         }
     }
-    if (strcmp(PWD, *command) == 0) {
+    if (directory != NULL) {
+        for(i = 0; 1; i++) {
+            if(i) {
+                *directory = (char*)realloc((*directory),i+1);
+            }
+            else {
+                *directory = (char*)malloc(i+1);
+            }
+            (*directory)[i] = getchar();
+            if((*directory)[i] == '\n') {
+                (*directory)[i] = '\0';
+                break;
+            }
+        }
+    }
+    if (strcmp("op", *directory) == 0) {
+        printf("directory is op lol\n");
+    }
+    else if (strcmp(PWD, *command) == 0) {
         pwd();
     }
     else if (strcmp(SUMMAX, *command) == 0) {
@@ -48,7 +71,7 @@ void prompt(UserInfo userInformation, char **command) {
         inputB = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
         matrixD = createMaxMatrix(inputA, inputB, matrix_size);
         matrixC = createSumMatrix(matrixD, matrix_size);
-        
+
         /* Tests with prints */
         printf("\nMatrix A (Input)\n");
         printMatrix(inputA, matrix_size, matrix_size); // Square matrix
@@ -58,16 +81,18 @@ void prompt(UserInfo userInformation, char **command) {
         printMatrix(matrixD, matrix_size, matrix_size); // Square matrix
         printf("\nMatrix C (Output - Sum of the max values)\n");
         printMatrix(matrixC, 1, matrix_size); // Matrix with just 1 row
-        
+
         freeMatrix(inputA, matrix_size);
         freeMatrix(inputB, matrix_size);
         freeMatrix(matrixD, matrix_size);
         freeOutput(matrixC, matrix_size);
     }
+    else if (strcmp(LS, *command) == 0) {
+        printf("ls...");
+    }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);
     }
-
     else {
         printf("Unrecognized command");
     }
@@ -109,11 +134,12 @@ void pwd () {
 
 int main(int argc, char *argv[]) {
     char *command = NULL;
+    char *directory = NULL;
     UserInfo userInformation; /* It doesn't change during the prompt's execution
                                * user, host, cwd */
     storeInfo(&userInformation);
     do {
-        prompt(userInformation, &command);
+        prompt(userInformation, &command, &directory);
     } while(strcmp(EXIT,command) != 0); // keep running unless the user types "exit"
     free(command);
 

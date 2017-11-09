@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <dirent.h> // For working with directory entries
 /******************************************************************************/
 
 /***************************** Structs ****************************************/
@@ -21,7 +22,7 @@ typedef struct UserInformation {
                 String command (followed by Enter)
  * @Return: Void, it just shows the statement + command to the user
  */
-void prompt(UserInfo userInformation,char **command);
+void prompt(UserInfo userInformation, char **command, char **directory);
 
 /* It stores information of the current user in a proper struct
  * @Parameters: Struct UserInfo
