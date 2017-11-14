@@ -101,7 +101,7 @@ void prompt(UserInfo userInformation, char **command, char **directory) {
         freeOutput(matrixC, matrix_size);
     }
     else if (strcmp(LS, *command) == 0) {
-        printf("ls...");
+        ls(*directory);
     }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);
@@ -145,6 +145,26 @@ void pwd () {
         printf("Current path");
     }
 }
+
+void ls(char *folder) {
+DIR * d = opendir(folder); // Open the path passed as parameter by the shell's user
+    if (d == NULL) { // If it was not able return the directory by its path
+        return;
+    } 
+    struct dirent * dir; // For the entries of the directory (files, other directories)
+    while ((dir = readdir(d)) != NULL) { // If something from the directory couldn't be read
+        if(dir-> d_type != DT_DIR) // If the type isn't a directory
+            printf("\t%s%s\n", FILECOLOR, dir->d_name); // \t for having a nested view directory/files
+        else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) { // If the type is a directory
+            printf("%s%s\n", DIRCOLOR, dir->d_name);
+            char d_path[255];
+            sprintf(d_path, "%s/%s", folder, dir->d_name);
+            ls(d_path); // Call the function with the new path, if one is found inside another directory
+        }
+    }
+    closedir(d); // Close the directory
+}
+
 
 int main(int argc, char *argv[]) {
     char *command = NULL;
