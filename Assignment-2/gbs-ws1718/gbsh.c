@@ -24,6 +24,7 @@
 #define FILECOLOR  "\x1B[34m" // Blue
 #define TRUE 1
 #define FALSE 0
+#define NULLSTR ""
 
 void prompt(UserInfo userInformation, char **command, char **directory) {
     int matrix_size;
@@ -147,11 +148,15 @@ void pwd () {
 }
 
 void ls(char *folder) {
-DIR * d = opendir(folder); // Open the path passed as parameter by the shell's user
+    if (strcmp(NULLSTR, folder) == 0) { // Show files from the current folder if the user does not specify a directory
+        folder = ".";
+    }
+    DIR * d = opendir(folder); // Open the path passed as parameter by the shell's user
     if (d == NULL) { // If it was not able return the directory by its path
         return;
     } 
     struct dirent * dir; // For the entries of the directory (files, other directories)
+    printf("\n");
     while ((dir = readdir(d)) != NULL) { // If something from the directory couldn't be read
         if(dir-> d_type != DT_DIR) // If the type isn't a directory
             printf("\t%s%s\n", FILECOLOR, dir->d_name); // \t for having a nested view directory/files
