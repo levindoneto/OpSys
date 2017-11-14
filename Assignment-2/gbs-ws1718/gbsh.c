@@ -156,21 +156,29 @@ void ls(char *folder) {
         folder = ".";
     }
     DIR * d = opendir(folder); // Open the path passed as parameter by the shell's user
+    if (d) {
+        struct dirent * dir; // For the entries of the directory (files, other directories)
+        while ((dir = readdir(d)) != NULL) { // If something from the directory couldn't be read
+            if(dir-> d_type != DT_DIR) // If the type isn't a directory
+                printf("\t%s%s\n", FILECOLOR, dir->d_name); // \t for having a nested view directory/files
+            else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) { // If the type is a directory
+                printf("%s%s\n", DIRCOLOR, dir->d_name);
+                char d_path[255];
+                sprintf(d_path, "%s/%s", folder, dir->d_name);
+                ls(d_path); // Call the function with the new path, if one is found inside another directory
+            }
+        }
+        closedir(d); // Close the directory
+    }
+    else if (ENOENT == errno) {
+        printf("The system cannot find the specified directory");
+    }
+    else {
+        printf("\nThe system has found an error\n");
+    }
     if (d == NULL) { // If it was not able return the directory by its path
         return;
     } 
-    struct dirent * dir; // For the entries of the directory (files, other directories)
-    while ((dir = readdir(d)) != NULL) { // If something from the directory couldn't be read
-        if(dir-> d_type != DT_DIR) // If the type isn't a directory
-            printf("\t%s%s\n", FILECOLOR, dir->d_name); // \t for having a nested view directory/files
-        else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) { // If the type is a directory
-            printf("%s%s\n", DIRCOLOR, dir->d_name);
-            char d_path[255];
-            sprintf(d_path, "%s/%s", folder, dir->d_name);
-            ls(d_path); // Call the function with the new path, if one is found inside another directory
-        }
-    }
-    closedir(d); // Close the directory
 }
 
 void cd(char *folder) {
