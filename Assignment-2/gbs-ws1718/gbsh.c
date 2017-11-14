@@ -22,6 +22,8 @@
 #define NORMAL_COLOR  "\x1B[0m" // White
 #define DIRCOLOR  "\x1B[32m" // Green
 #define FILECOLOR  "\x1B[34m" // Blue
+#define TRUE 1
+#define FALSE 0
 
 void prompt(UserInfo userInformation, char **command, char **directory) {
     int matrix_size;
@@ -29,9 +31,9 @@ void prompt(UserInfo userInformation, char **command, char **directory) {
     int **inputB;
     int **matrixD;
     int **matrixC; // Output
+    int commandWithNoDir = FALSE;
     printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
     int i;
-
     for(i = 0; 1; i++) {
         if(i) {
             *command = (char*)realloc((*command),i+1);
@@ -40,31 +42,35 @@ void prompt(UserInfo userInformation, char **command, char **directory) {
             *command = (char*)malloc(i+1);
         }
         (*command)[i] = getchar();
-        if((*command)[i] == '\n') { // Command without directory
+        if((*command)[i] == '\n') { // If the user types the command without specifying a directory
+            commandWithNoDir = TRUE;
             (*command)[i] = '\0';
-            *directory = (char*)malloc(1); // For not getting problems with null directories
+            *directory = (char*)malloc(1); // Avoid seg fault because of the use of free() for each command
             break;
         }
-        else if ((*command)[i] == ' ') { // Command with dictionary
-            for(i = 0; 1; i++) {
-                if(i) {
-                    *directory = (char*)realloc((*directory),i+1);
-                }
-                else {
-                    *directory = (char*)malloc(i+1);
-                }
-                (*directory)[i] = getchar();
-                if((*directory)[i] == '\n') {
-                   (*directory)[i] = '\0';
-                    break;
-                }
-            }
-        
+        else if((*command)[i] == ' ') { // If the user put a space after the command, the directory should be specified
+            (*command)[i] = '\0';
+            break;
         }
     }
-
-    printf("command: %s\n", *command);
-    printf("directory: %s\n", *directory);
+    if (commandWithNoDir != TRUE) { // Get the directory
+        for(i = 0; 1; i++) {
+            if(i) {
+                *directory = (char*)realloc((*directory),i+1);
+            }
+            else {
+                *directory = (char*)malloc(i+1);
+            }
+            (*directory)[i] = getchar();
+            if((*directory)[i] == '\n') { // When the user press <Enter>
+                (*directory)[i] = '\0';
+                break;
+            }
+        }
+    }
+    
+    //printf("\ncommand: %s", *command);
+    //printf("\ndirectory: %s", *directory);
     
     if (strcmp("op", *directory) == 0) {
         printf("directory is op lol\n");
