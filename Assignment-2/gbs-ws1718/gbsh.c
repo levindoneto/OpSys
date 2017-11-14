@@ -15,6 +15,7 @@
 #define PWD "pwd"
 #define SUMMAX "sum-max"
 #define LS "ls"
+#define CD "cd"
 #define MIN 1
 #define MAX 5 // Matrices contain max 5 rows and 5 columns
 #define MINELEMENT 0 // Minimum value for the random matrices
@@ -104,6 +105,9 @@ void prompt(UserInfo userInformation, char **command, char **directory) {
     else if (strcmp(LS, *command) == 0) {
         ls(*directory);
     }
+    else if (strcmp(CD, *command) == 0) {
+        cd(*directory);
+    }
     else if (strcmp(EXIT, *command) == 0) {
         exit(0);
     }
@@ -156,7 +160,6 @@ void ls(char *folder) {
         return;
     } 
     struct dirent * dir; // For the entries of the directory (files, other directories)
-    printf("\n");
     while ((dir = readdir(d)) != NULL) { // If something from the directory couldn't be read
         if(dir-> d_type != DT_DIR) // If the type isn't a directory
             printf("\t%s%s\n", FILECOLOR, dir->d_name); // \t for having a nested view directory/files
@@ -170,6 +173,11 @@ void ls(char *folder) {
     closedir(d); // Close the directory
 }
 
+void cd(char *folder) {
+    /* If the user does not pass a folder as parameter, folder="", and
+       chdir("") is the same as chdir("./") */
+    chdir(folder);
+}
 
 int main(int argc, char *argv[]) {
     char *command = NULL;

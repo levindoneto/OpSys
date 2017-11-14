@@ -14,8 +14,13 @@ __Authors:__ [Leonardo Nahra](https://github.com/lanahra), [Levindo Neto](https:
 #### pwd
 Command that prints the user’s current working directory.
 
-#### ls <<directory>>
-Command that lists the contents of the directory specified by <directory>.
+#### ls directory
+Command that lists the contents of the directory specified by *directory*.
+
+#### cd directory
+Command that changes to the directory specified by the given *directory*.
+If the user does not specify a directory, the current one remains.
+
 
 #### sum-max
 Command which takes as input two matrices, *A* and *B*, and computes an output matrix C, which contains the sum of the maximum values of each column of the inputs.

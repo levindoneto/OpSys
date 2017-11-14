@@ -36,9 +36,15 @@ void storeInfo (UserInfo *infoUser);
  */
 void pwd ();
 
-/* It shows the user's current path (pwd command)
- * @Parameters: String: Directory
+/* It lists the contents of the directory specified by the given folder
+ * @Parameters: String: folder
  * @Return: Void, it just shows all the files and sub-directories in the given folder
  */
 void ls(char *folder);
+
+/* It changes to the directory specified by the given folder.
+ * @Parameters: String: folder
+ * @Return: Void, it just changes the user's current folder
+ */
+void cd(char *folder);
 /******************************************************************************/
