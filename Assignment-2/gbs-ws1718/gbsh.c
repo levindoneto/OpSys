@@ -174,9 +174,19 @@ void ls(char *folder) {
 }
 
 void cd(char *folder) {
-    /* If the user does not pass a folder as parameter, folder="", and
+    DIR* dir = opendir(folder);
+    if (dir) {
+       /* If the user does not pass a folder as parameter, folder="", and
        chdir("") is the same as chdir("./") */
-    chdir(folder);
+        chdir(folder);
+    }
+    else if (ENOENT == errno) {
+        printf("The system cannot find the specified directory");
+    }
+    else {
+        printf("\nThe system has found an error\n");
+    }
+
 }
 
 int main(int argc, char *argv[]) {

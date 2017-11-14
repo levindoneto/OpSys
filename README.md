@@ -26,5 +26,5 @@ If the user does not specify a directory, the current one remains.
 Command which takes as input two matrices, *A* and *B*, and computes an output matrix C, which contains the sum of the maximum values of each column of the inputs.
 
 #### exit
-Command that quits the shell
+Command that quits the shell.
 
