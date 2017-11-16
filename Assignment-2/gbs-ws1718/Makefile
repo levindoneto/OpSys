@@ -2,7 +2,7 @@
 
 CC = gcc
 CFLAGS  = -Wall -g
-OBJ = gbsh.o summax.o
+OBJ = gbsh.o summax.o envlist.o
 
 all: gbsh
 
