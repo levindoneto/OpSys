@@ -14,6 +14,11 @@ typedef struct nodeList NODE_LIST;
  * @Parameters: Void
  * @Return: NULL
  */
-NODE_LIST* initEnvironList(void) {
-    return NULL;
-}
+NODE_LIST* initEnvironList(void);
+
+/* Function that add a new environment variable into the list of env vars
+ * @Parameters: First element (shell info), Structure with the information
+ *              about the the environment (id and value)
+ * @Return: First node of the list of environment variable
+ */
+NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron);
