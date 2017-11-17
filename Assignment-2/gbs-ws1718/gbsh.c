@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include "gbsh.h"
 #include "summax.h"
+#include "envlist.h"
 
 #define EXIT "exit"
 #define PWD "pwd"
@@ -26,6 +27,7 @@
 #define TRUE 1
 #define FALSE 0
 #define NULLSTR ""
+#define TESTENVLIST 1 // Change to 0 to execute the shell normally
 
 void prompt(UserInfo userInformation, char **command, char **directory) {
     int matrix_size;
@@ -198,17 +200,40 @@ void cd(char *folder) {
 }
 
 int main(int argc, char *argv[]) {
-    char *command = NULL;
-    char *directory = NULL;
-    UserInfo userInformation; /* It doesn't change during the prompt's execution
-                               * user, host, cwd */
-    storeInfo(&userInformation);
-    do {
-        prompt(userInformation, &command, &directory);
-        free(command);
-        free(directory);
-    } while(strcmp(EXIT,command) != 0); // keep running unless the user types "exit"
-    
+    #if TESTENVLIST == 1
+        ENV_VAR environmentVar;
+        int amountEnvironVars = 0; // Number of environment variables which have been already set
+        NODE_LIST* firstElement; // Pointer for the first element of the list
+        int wish; // Yes(1) / No(2)
 
+        firstElement = initEnvironList(); // Initialize the circular list of environment variables
+
+        printf("\nEnviron\n\n");
+        do {
+            amountEnvironVars++;
+            printf("\nId: ");
+            scanf("%s", environmentVar.envVarId);
+            printf("Value: ");
+            scanf("%s", environmentVar.envVarValue);
+            firstElement = setEnviron(firstElement, environmentVar);
+            printf("\n1-Yes | 2-No): ");
+            scanf("%d",&wish);
+            fflush(stdin);
+        }
+        while(wish!=2);
+        //---------------------------------------------------------------------
+        printf("\nThere are %d set variables\n", showEnvironList(firstElement));
+    #else
+        char *command = NULL;
+        char *directory = NULL;
+        UserInfo userInformation; /* It doesn't change during the prompt's execution
+                                   * user, host, cwd */
+        storeInfo(&userInformation);
+        do {
+            prompt(userInformation, &command, &directory);
+            free(command);
+            free(directory);
+        } while(strcmp(EXIT,command) != 0); // keep running unless the user types "exit"
+    #endif
     return 0; // Exit the shell
 }

@@ -9,7 +9,7 @@ NODE_LIST* initEnvironList(void) {
 
 NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron) {
     NODE_LIST *newElement; // Create a new node, which contains the id and the value of the new environment variable
-    NODE_LIST *auxiliary = NULL; // Pointer to the previous list's element
+    NODE_LIST *previous = NULL; // Pointer to the previous list's element
     NODE_LIST *ptaux = FirstNode; // Update the first element with an auxiliary pointer for it
     newElement = (NODE_LIST*) malloc(sizeof(NODE_LIST)); // Allocate memory for the new list's node
     newElement->data = dataEnviron; // Insert data into the new element
@@ -26,7 +26,7 @@ NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron) {
         }
         while(ptaux != FirstNode);  // Stop condition for the used circular list
         // Close the circular chaining
-        auxiliary->next = newElement;    //(*previous).next points to the next element
+        previous->next = newElement;    //(*previous).next points to the next element
         newElement->next = FirstNode; //(*new).next points to the beginning the list
     }
     return FirstNode; // It always comes to the beginning of the list
@@ -41,8 +41,7 @@ int showEnvironList(NODE_LIST *FirstNode) {
     else {
         ptaux = FirstNode; // The aux points to the first node as well, in order to start going through all the nodes sequentially
         do {
-            puts(ptaux->data.envVarId); // Print Id
-            puts(ptaux->data.envVarValue); // Print Value
+            printf("%s %s\n", ptaux->data.envVarId, ptaux->data.envVarValue); // Print Value
             ptaux = ptaux->next;     // Go to the next list's element
             counter++; // For each node is a new variable
         }
