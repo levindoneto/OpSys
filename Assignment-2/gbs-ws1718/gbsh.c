@@ -20,6 +20,9 @@
 #define SUMMAX "sum-max"
 #define LS "ls"
 #define CD "cd"
+#define ENVIRON "environ" // List all the environment variables which have been already defined
+#define SETENV "setenv"
+#define UNSETENV "unsetenv"
 #define MIN 1
 #define MAX 5 // Matrices contain max 5 rows and 5 columns
 #define MINELEMENT 0 // Minimum value for the random matrices
@@ -28,7 +31,7 @@
 #define DIRCOLOR  "\x1B[32m" // Green
 #define FILECOLOR  "\x1B[34m" // Blue
 #define NULLSTR ""
-#define TESTENVLIST 1 // Change to 0 to execute the shell normally
+#define TESTENVLIST 0 // Change to 0 to execute the shell normally
 
 void prompt() {
     UserInfo userInformation;
@@ -89,6 +92,16 @@ void prompt() {
                 cd(argv[1]);
             } else {
                 cd("");
+            }
+        }
+        else if (strcmp(ENVIRON, argv[0]) == 0) { // List set environment variables
+            if (argc > 0) {
+                NODE_LIST* firstElement; // Pointer for the first element of the list
+                firstElement = initEnvironList(); // Initialize the circular list of environment variables
+                showEnvironList(firstElement);
+
+            } else {
+                printf("\nelse\n");
             }
         }
         else if (strcmp(EXIT, argv[0]) == 0) {

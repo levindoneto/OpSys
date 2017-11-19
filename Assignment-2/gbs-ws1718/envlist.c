@@ -54,7 +54,7 @@ int showEnvironList(NODE_LIST *FirstNode) {
     int counter = 0; // Counter to define the number of set environment variables
 
     if(FirstNode == NULL)
-        puts("There's no defined environment variable");
+        puts("\nThere's no defined environment variable");
     else {
         ptaux = FirstNode; // The aux points to the first node as well, in order to start going through all the nodes sequentially
         do {
