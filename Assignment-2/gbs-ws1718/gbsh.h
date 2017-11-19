@@ -30,13 +30,13 @@ void prompt();
                 argv, array of arguments output
  * @Return void
  */
-void parse_cmd(char *cmd, int *argc, char ***argv);
+void parse_cmd(char *cmd, int *argc, char ***argv, char **input_path, char **output_path);
 
 /* Free the allocated memory form parse_cmd call
  *  @Parameters: argc, number of arguments
                  argv, arguments
  */
-void free_cmd(int argc, char ***argv);
+void free_cmd(int argc, char ***argv, char **input_path, char **output_path);
 
 /* It stores information of the current user in a proper struct
  * @Parameters: Struct UserInfo
@@ -44,17 +44,11 @@ void free_cmd(int argc, char ***argv);
  */
 void storeInfo (UserInfo *infoUser);
 
-/* It shows the user's current path (pwd command)
- * @Parameters: None
- * @Return: Void, it just shows the current path to the user
- */
-void pwd ();
-
 /* It lists the contents of the directory specified by the given folder
  * @Parameters: String: folder
  * @Return: Void, it just shows all the files and sub-directories in the given folder
  */
-void ls(char *folder);
+void ls(char *folder, char *output);
 
 /* It changes to the directory specified by the given folder.
  * @Parameters: String: folder
