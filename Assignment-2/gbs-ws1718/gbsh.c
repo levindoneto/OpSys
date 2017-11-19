@@ -185,32 +185,31 @@ void pwd () {
 }
 
 void ls(char *folder) {
-    if (strcmp(NULLSTR, folder) == 0) { // Show files from the current folder if the user does not specify a directory
+    if (strcmp(NULLSTR, folder) == 0) {
         folder = ".";
     }
-    DIR * d = opendir(folder); // Open the path passed as parameter by the shell's user
-    if (d) {
-        struct dirent * dir; // For the entries of the directory (files, other directories)
-        while ((dir = readdir(d)) != NULL) { // If something from the directory couldn't be read
-            if(dir-> d_type != DT_DIR) // If the type isn't a directory
-                printf("\t%s%s\n%s", FILECOLOR, dir->d_name, NORMAL_COLOR); // \t for having a nested view directory/files
-            else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) { // If the type is a directory
-                printf("%s%s\n", DIRCOLOR, dir->d_name);
-                char d_path[255];
-                sprintf(d_path, "%s/%s", folder, dir->d_name);
-                ls(d_path); // Call the function with the new path, if one is found inside another directory
+
+    DIR * dir = opendir(folder);
+
+    if (dir) {
+        struct dirent *entry;
+
+        while ((entry = readdir(dir)) != 0) {
+            // if entry is a file
+            if (entry->d_type != DT_DIR) {
+                printf("%s%s\n%s", FILECOLOR, entry->d_name, NORMAL_COLOR);
+
+            // if entry is a directory
+            } else if (entry->d_type == DT_DIR
+                       && strcmp(entry->d_name,".") != 0
+                       && strcmp(entry->d_name,"..") != 0 ) {
+                printf("%s%s/%s\n", DIRCOLOR, entry->d_name, NORMAL_COLOR);
             }
         }
-        closedir(d); // Close the directory
-    }
-    else if (ENOENT == errno) {
-        printf("The system cannot find the specified directory");
-    }
-    else {
-        printf("\nThe system has found an error\n");
-    }
-    if (d == NULL) { // If it was not able return the directory by its path
-        return;
+
+        closedir(dir);
+    } else {
+        strerror(errno);
     }
 }
 
