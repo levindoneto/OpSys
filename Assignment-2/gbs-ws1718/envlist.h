@@ -23,6 +23,13 @@ NODE_LIST* initEnvironList(void);
  */
 NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron);
 
+/* Function that removes a new environment variable from the list of env vars
+ * @Parameters: NODE_LIST: First element (shell info), 
+ *              ENV_VAR: Information about the the environment var (id and value)
+ * @Return: First node of the list of environment variable after the deletion
+ */
+NODE_LIST* unsetEnviron(NODE_LIST *FirstNode, char* varToBeDe);
+
 /* Function that shows all the environment variables which have been set
  * @Parameters: NODE_LIST: First element (shell info)
  * @Return: Int: Amount of set variables in the shell
