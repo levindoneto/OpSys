@@ -22,7 +22,6 @@
 #define LS "ls"
 #define CD "cd"
 #define ENVIRON "environ" // List all the environment variables which have been already defined
-#define ENVIRON "environ" // List all the environment variables which have been already defined
 #define SETENV "setenv"
 #define UNSETENV "unsetenv"
 #define MIN 1
@@ -37,12 +36,13 @@
 
 void prompt() {
     UserInfo userInformation;
-
     char cmd[1024];
     int argc = 0;
     char **argv = 0;
     char *input_path = 0;
     char *output_path = 0;
+    NODE_LIST* firstElement; // Pointer for the first element of the list
+    firstElement = initEnvironList(); // Initialize the circular list of environment variables
     while (true) {
         storeInfo(&userInformation);
         printf("\n%s@%s: %s > ", userInformation.user, userInformation.host, userInformation.cwd);
@@ -111,7 +111,8 @@ void prompt() {
             if (input_file) {
                 read(input_file, input, sizeof(input));
                 strcpy(input, strtok(input, "\n"));
-            } else if (argc > 1) {
+            } 
+            else if (argc > 1) {
                 strcpy(input, argv[1]);
             }
 
@@ -120,25 +121,37 @@ void prompt() {
 
             if (output_file) {
                 write(output_file, output, strlen(output));
-            } else {
+            } 
+            else {
                 printf("%s", output);
             }
         }
         else if (strcmp(CD, argv[0]) == 0) {
             if (argc > 1) {
                 cd(argv[1]);
-            } else {
+            } 
+            else {
                 cd("");
             }
         }
         else if (strcmp(ENVIRON, argv[0]) == 0) { // List set environment variables
             if (argc > 0) {
-                NODE_LIST* firstElement; // Pointer for the first element of the list
-                firstElement = initEnvironList(); // Initialize the circular list of environment variables
                 showEnvironList(firstElement);
 
-            } else {
+            } 
+            else {
                 printf("\Error\n");
+            }
+        }
+        else if (strcmp(SETENV, argv[0]) == 0) { // List set environment variables
+            if (argc > 1) {
+                ENV_VAR newEnvVar; // id and value
+                strcpy(newEnvVar.envVarId, argv[1]);
+                strcpy(newEnvVar.envVarValue, argv[2]);
+                firstElement = setEnviron(firstElement, newEnvVar);
+            } 
+            else {
+                printf("\nsetenv needs two parameters:\nid and value\nin order to work properly\n");
             }
         }
         else if (strcmp(EXIT, argv[0]) == 0) {
@@ -170,6 +183,7 @@ void prompt() {
         input_file = 0;
         free_cmd(argc, &argv, &input_path, &output_path);
     }
+    free(firstElement);
 }
 
 void parse_cmd(char *cmd, int *argc, char ***argv, char **input_path, char **output_path) {
@@ -185,13 +199,15 @@ void parse_cmd(char *cmd, int *argc, char ***argv, char **input_path, char **out
                 *input_path = malloc(strlen(arg) + 1);
                 strcpy(*input_path, arg);
             }
-        } else if (strcmp(arg, ">") == 0)  {
+        } 
+        else if (strcmp(arg, ">") == 0)  {
             arg = strtok(0, " \n");
             if (arg != 0) {
                 *output_path = malloc(strlen(arg) + 1);
                 strcpy(*output_path, arg);
             }
-        } else {
+        } 
+        else {
             strcpy(args[i], arg);
             i++;
         }
