@@ -151,7 +151,15 @@ void prompt() {
                 firstElement = setEnviron(firstElement, newEnvVar);
             } 
             else {
-                printf("\nsetenv needs two parameters:\nid and value\nin order to work properly\n");
+                printf("\nsetenv needs two parameters:\nid and value\nin order to function properly\n");
+            }
+        }
+        else if (strcmp(UNSETENV, argv[0]) == 0) { // List set environment variables
+            if (argc > 1) {
+                firstElement = unsetEnviron(firstElement, argv[1]);
+            } 
+            else {
+                printf("\nunsetenv needs one parameter:\nid of the environment variable\nin order to function properly\n");
             }
         }
         else if (strcmp(EXIT, argv[0]) == 0) {
