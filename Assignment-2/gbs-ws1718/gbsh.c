@@ -22,6 +22,7 @@
 #define LS "ls"
 #define CD "cd"
 #define ENVIRON "environ" // List all the environment variables which have been already defined
+#define ENVIRON "environ" // List all the environment variables which have been already defined
 #define SETENV "setenv"
 #define UNSETENV "unsetenv"
 #define MIN 1
@@ -137,7 +138,7 @@ void prompt() {
                 showEnvironList(firstElement);
 
             } else {
-                printf("\nelse\n");
+                printf("\Error\n");
             }
         }
         else if (strcmp(EXIT, argv[0]) == 0) {
