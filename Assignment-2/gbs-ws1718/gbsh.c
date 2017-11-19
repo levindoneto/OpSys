@@ -29,7 +29,7 @@
 #define DIRCOLOR  "\x1B[32m" // Green
 #define FILECOLOR  "\x1B[34m" // Blue
 #define NULLSTR ""
-#define TESTENVLIST 0 // Change to 0 to execute the shell normally
+#define TESTENVLIST 1 // Change to 0 to execute the shell normally
 
 void prompt() {
     UserInfo userInformation;
@@ -41,7 +41,7 @@ void prompt() {
     char *output_path = 0;
     while (true) {
         storeInfo(&userInformation);
-        printf("\n%s@%s: %s $ ", userInformation.user, userInformation.host, userInformation.cwd);
+        printf("\n%s@%s: %s > ", userInformation.user, userInformation.host, userInformation.cwd);
         fgets(cmd, sizeof(cmd), stdin);
         //strcpy(cmd, "ls < input > output");
         parse_cmd(cmd, &argc, &argv, &input_path, &output_path);
@@ -292,6 +292,7 @@ int main(int argc, char *argv[]) {
         int amountEnvironVars = 0; // Number of environment variables which have been already set
         NODE_LIST* firstElement; // Pointer for the first element of the list
         int wish; // Yes(1) / No(2)
+        char elemToBeDel[100];
 
         firstElement = initEnvironList(); // Initialize the circular list of environment variables
 
@@ -310,6 +311,14 @@ int main(int argc, char *argv[]) {
         while(wish!=2);
         //---------------------------------------------------------------------
         printf("\nThere are %d set variables\n", showEnvironList(firstElement));
+    
+        printf("\nDelete an element\n");
+        scanf("%s", elemToBeDel);
+        firstElement = unsetEnviron(firstElement, elemToBeDel);
+        
+        printf("\nNew environ list:\n");
+        printf("\nThere are %d set variables\n", showEnvironList(firstElement));
+    
     #else
         prompt();
     #endif
