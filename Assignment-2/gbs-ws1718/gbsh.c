@@ -92,7 +92,7 @@ void prompt() {
             }
         }
         else if (strcmp(EXIT, argv[0]) == 0) {
-            exit(0);
+            break;
         }
         else {
             int pid = fork();
