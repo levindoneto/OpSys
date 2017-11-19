@@ -16,7 +16,7 @@ NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron) {
     int i = 0; // Counter of shell's environment variables
     if(FirstNode == NULL) {
         FirstNode = newElement; // Pointer, which points to the beginning, receives the new element, which also is gonna be put in the beginning of the list
-        newElement->next = newElement; // New element is also the last element of the list
+        newElement->next = NULL; // New element is the last element of the linked list, so it points to null
     }
     else {
         do {
@@ -24,10 +24,10 @@ NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron) {
             ptaux = ptaux->next;
             i++;
         }
-        while(ptaux != FirstNode);  // Stop condition for the used circular list
+        while(ptaux != NULL);  // Stop condition for the used for this linked list
         // Close the circular chaining
         previous->next = newElement;    //(*previous).next points to the next element
-        newElement->next = FirstNode; //(*new).next points to the beginning the list
+        newElement->next = NULL; //(*new).next points to the beginning the list
     }
     return FirstNode; // It always comes to the beginning of the list
 }
@@ -39,15 +39,13 @@ NODE_LIST* unsetEnviron(NODE_LIST *FirstNode, char* varToBeDel) {
     else if (strcmp(FirstNode->data.envVarId, varToBeDel) == 0) { // The element to be found is in the first position of the list
         NODE_LIST *tempNext;
         tempNext =  FirstNode->next; // Save the current next element, because it'll be the new first one in the list
-        free(FirstNode); // Deallocate the First Node because the variable to be deleted was in it 
+        FirstNode->next = NULL; // Deallocate the First Node because the variable to be deleted was in it 
         return tempNext; // To have the new first element
     }
     /* Search the element in the rest of the list recursively */
     FirstNode->next = unsetEnviron(FirstNode->next, varToBeDel);
     return FirstNode;
 }
-
-
 
 int showEnvironList(NODE_LIST *FirstNode) {
     NODE_LIST *ptaux; // Aux which will go through the list
@@ -57,12 +55,11 @@ int showEnvironList(NODE_LIST *FirstNode) {
         puts("\nThere's no defined environment variable");
     else {
         ptaux = FirstNode; // The aux points to the first node as well, in order to start going through all the nodes sequentially
-        do {
+        while(ptaux != NULL) {
             printf("%s %s\n", ptaux->data.envVarId, ptaux->data.envVarValue); // Print "id value"
             ptaux = ptaux->next; // Go to the next list's element
             counter++; // For each node is a new variable
         }
-        while(ptaux != FirstNode); // It's a circular list, so when aux gets to the first node is because aux has gone through the whole list
     }
     return counter;
 }
