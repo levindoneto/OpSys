@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
@@ -38,19 +39,42 @@ void prompt() {
 
     char cmd[1024];
     int argc = 0;
-    char **argv;
+    char **argv = 0;
+    char *input_path = 0;
+    char *output_path = 0;
     while (true) {
         storeInfo(&userInformation);
         printf("\n%s@%s: %s > ", userInformation.user, userInformation.host, userInformation.cwd);
         fgets(cmd, sizeof(cmd), stdin);
-        parse_cmd(cmd, &argc, &argv);
+        //strcpy(cmd, "ls < input > output");
+        parse_cmd(cmd, &argc, &argv, &input_path, &output_path);
 
         if (argc == 0) {
             continue;
         }
 
+        int input_file = 0;
+        if (input_path) {
+            input_file = open(input_path, O_RDONLY);
+        }
+
+        int output_file = 0;
+        if (output_path) {
+            output_file = open(output_path, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
+        }
+
         if (strcmp(PWD, argv[0]) == 0) {
-            pwd();
+            char path[1024] = "";
+
+            if (getcwd(path, sizeof(path)) == 0) {
+                strerror(errno);
+            } else {
+                if (output_file) {
+                    write(output_file, path, strlen(path));
+                } else {
+                    printf("%s", path);
+                }
+            }
         }
         else if (strcmp(SUMMAX, argv[0]) == 0) {
             int matrix_size;
@@ -81,10 +105,22 @@ void prompt() {
             freeOutput(matrixC, matrix_size);
         }
         else if (strcmp(LS, argv[0]) == 0) {
-            if (argc > 1) {
-                ls(argv[1]);
+            char input[1024] = "";
+
+            if (input_file) {
+                read(input_file, input, sizeof(input));
+                strcpy(input, strtok(input, "\n"));
+            } else if (argc > 1) {
+                strcpy(input, argv[1]);
+            }
+
+            char output[2048];
+            ls(input, output);
+
+            if (output_file) {
+                write(output_file, output, strlen(output));
             } else {
-                ls("");
+                printf("%s", output);
             }
         }
         else if (strcmp(CD, argv[0]) == 0) {
@@ -111,9 +147,17 @@ void prompt() {
             int pid = fork();
 
             if (pid == 0) {
+                if (input_file) {
+                    dup2(input_file, STDIN_FILENO);
+                }
+                if (output_file) {
+                    dup2(output_file, STDOUT_FILENO);
+                }
+
                 execvp(argv[0], argv);
-                free_cmd(argc, &argv);
-                argv = 0;
+                input_file = 0;
+                input_file = 0;
+                free_cmd(argc, &argv, &input_path, &output_path);
                 exit(0);
             } else {
                 int status;
@@ -121,20 +165,36 @@ void prompt() {
             }
         }
 
-        free_cmd(argc, &argv);
-        argv = 0;
+        input_file = 0;
+        input_file = 0;
+        free_cmd(argc, &argv, &input_path, &output_path);
     }
 }
 
-void parse_cmd(char *cmd, int *argc, char ***argv) {
+void parse_cmd(char *cmd, int *argc, char ***argv, char **input_path, char **output_path) {
     char *arg = strtok(cmd, " \n");
     char args[256][256];
 
     // parse command line string and store in a temporary array
     int i = 0;
     while (arg != 0) {
-        strcpy(args[i], arg);
-        i++;
+        if (strcmp(arg, "<") == 0)  {
+            arg = strtok(0, " \n");
+            if (arg != 0) {
+                *input_path = malloc(strlen(arg) + 1);
+                strcpy(*input_path, arg);
+            }
+        } else if (strcmp(arg, ">") == 0)  {
+            arg = strtok(0, " \n");
+            if (arg != 0) {
+                *output_path = malloc(strlen(arg) + 1);
+                strcpy(*output_path, arg);
+            }
+        } else {
+            strcpy(args[i], arg);
+            i++;
+        }
+
         arg = strtok(0, " \n");
     }
 
@@ -155,12 +215,18 @@ void parse_cmd(char *cmd, int *argc, char ***argv) {
     }
 }
 
-void free_cmd(int argc, char ***argv) {
+void free_cmd(int argc, char ***argv, char **input_path, char **output_path) {
     int i;
     for (i = 0; i <= argc; i++) {
         free((*argv)[i]);
     }
+
     free(*argv);
+    *argv = 0;
+    free(*input_path);
+    *input_path = 0;
+    free(*output_path);
+    *output_path = 0;
 }
 
 void storeInfo (UserInfo *infoUser) {
@@ -187,17 +253,7 @@ void storeInfo (UserInfo *infoUser) {
     infoUser->host = hostname;
 }
 
-void pwd () {
-    char currentpath[1024];
-    if (getcwd(currentpath, sizeof(currentpath)) != NULL) {
-        printf("%s", currentpath);
-    }
-    else {
-        printf("Current path");
-    }
-}
-
-void ls(char *folder) {
+void ls(char *folder, char *output) {
     if (strcmp(NULLSTR, folder) == 0) {
         folder = ".";
     }
@@ -207,22 +263,23 @@ void ls(char *folder) {
     if (dir) {
         struct dirent *entry;
 
+        int len = 0;
         while ((entry = readdir(dir)) != 0) {
             // if entry is a file
             if (entry->d_type != DT_DIR) {
-                printf("%s%s\n%s", FILECOLOR, entry->d_name, NORMAL_COLOR);
+                len += sprintf(output + len, "%s%s\n%s", FILECOLOR, entry->d_name, NORMAL_COLOR);
 
             // if entry is a directory
             } else if (entry->d_type == DT_DIR
                        && strcmp(entry->d_name,".") != 0
                        && strcmp(entry->d_name,"..") != 0 ) {
-                printf("%s%s/%s\n", DIRCOLOR, entry->d_name, NORMAL_COLOR);
+                len += sprintf(output + len, "%s%s/%s\n", DIRCOLOR, entry->d_name, NORMAL_COLOR);
             }
         }
 
         closedir(dir);
     } else {
-        strerror(errno);
+        printf("%s", strerror(errno));
     }
 }
 
