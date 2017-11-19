@@ -22,7 +22,21 @@ typedef struct UserInformation {
                 String command (followed by Enter)
  * @Return: Void, it just shows the statement + command to the user
  */
-void prompt(UserInfo userInformation, char **command, char **directory);
+void prompt();
+
+/* Parse command line arguments
+ * @Parameters: cmd, command line input
+                argc, number of arguments output
+                argv, array of arguments output
+ * @Return void
+ */
+void parse_cmd(char *cmd, int *argc, char ***argv);
+
+/* Free the allocated memory form parse_cmd call
+ *  @Parameters: argc, number of arguments
+                 argv, arguments
+ */
+void free_cmd(int argc, char ***argv);
 
 /* It stores information of the current user in a proper struct
  * @Parameters: Struct UserInfo

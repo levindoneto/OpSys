@@ -2,9 +2,12 @@
  * Features: prompt, exit, pwd, sum-max
  * Members: Leonardo Nahra, Levindo Neto and Li-Wei Chen
  */
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
@@ -24,99 +27,127 @@
 #define NORMAL_COLOR  "\x1B[0m" // White
 #define DIRCOLOR  "\x1B[32m" // Green
 #define FILECOLOR  "\x1B[34m" // Blue
-#define TRUE 1
-#define FALSE 0
 #define NULLSTR ""
-#define TESTENVLIST 1 // Change to 0 to execute the shell normally
+#define TESTENVLIST 0 // Change to 0 to execute the shell normally
 
-void prompt(UserInfo userInformation, char **command, char **directory) {
-    int matrix_size;
-    int **inputA;
-    int **inputB;
-    int **matrixD;
-    int **matrixC; // Output
-    int commandWithNoDir = FALSE;
-    printf("\n<%s>@<%s> <%s> > ", userInformation.user, userInformation.host, userInformation.cwd);
-    int i;
-    for(i = 0; 1; i++) {
-        if(i) {
-            *command = (char*)realloc((*command),i+1);
+void prompt() {
+    UserInfo userInformation;
+
+    char cmd[1024];
+    int argc = 0;
+    char **argv;
+    while (true) {
+        storeInfo(&userInformation);
+        printf("\n%s@%s: %s $ ", userInformation.user, userInformation.host, userInformation.cwd);
+        fgets(cmd, sizeof(cmd), stdin);
+        parse_cmd(cmd, &argc, &argv);
+
+        if (argc == 0) {
+            continue;
+        }
+
+        if (strcmp(PWD, argv[0]) == 0) {
+            pwd();
+        }
+        else if (strcmp(SUMMAX, argv[0]) == 0) {
+            int matrix_size;
+            int **inputA;
+            int **inputB;
+            int **matrixD;
+            int **matrixC; // Output
+
+            matrix_size = generateRandomValue (MIN, MAX);
+            inputA = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
+            inputB = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
+            matrixD = createMaxMatrix(inputA, inputB, matrix_size);
+            matrixC = createSumMatrix(matrixD, matrix_size);
+
+            /* Tests with prints */
+            printf("\nMatrix A (Input)\n");
+            printMatrix(inputA, matrix_size, matrix_size); // Square matrix
+            printf("\nMatrix B (Input)\n");
+            printMatrix(inputA, matrix_size, matrix_size); // Square matrix
+            printf("\nMatrix D (Auxiliar - Max values)\n");
+            printMatrix(matrixD, matrix_size, matrix_size); // Square matrix
+            printf("\nMatrix C (Output - Sum of the max values)\n");
+            printMatrix(matrixC, 1, matrix_size); // Matrix with just 1 row
+
+            freeMatrix(inputA, matrix_size);
+            freeMatrix(inputB, matrix_size);
+            freeMatrix(matrixD, matrix_size);
+            freeOutput(matrixC, matrix_size);
+        }
+        else if (strcmp(LS, argv[0]) == 0) {
+            if (argc > 1) {
+                ls(argv[1]);
+            } else {
+                ls("");
+            }
+        }
+        else if (strcmp(CD, argv[0]) == 0) {
+            if (argc > 1) {
+                cd(argv[1]);
+            } else {
+                cd("");
+            }
+        }
+        else if (strcmp(EXIT, argv[0]) == 0) {
+            exit(0);
         }
         else {
-            *command = (char*)malloc(i+1);
-        }
-        (*command)[i] = getchar();
-        if((*command)[i] == '\n') { // If the user types the command without specifying a directory
-            commandWithNoDir = TRUE;
-            (*command)[i] = '\0';
-            *directory = (char*)malloc(1); // Avoid seg fault because of the use of free() for each command
-            break;
-        }
-        else if((*command)[i] == ' ') { // If the user put a space after the command, the directory should be specified
-            (*command)[i] = '\0';
-            break;
-        }
-    }
-    if (commandWithNoDir != TRUE) { // Get the directory
-        for(i = 0; 1; i++) {
-            if(i) {
-                *directory = (char*)realloc((*directory),i+1);
-            }
-            else {
-                *directory = (char*)malloc(i+1);
-            }
-            (*directory)[i] = getchar();
-            if((*directory)[i] == '\n') { // When the user press <Enter>
-                (*directory)[i] = '\0';
-                break;
-            }
-        }
-    }
-    
-    //printf("\ncommand: %s", *command);
-    //printf("\ndirectory: %s", *directory);
-    
-    if (strcmp("op", *directory) == 0) {
-        printf("directory is op lol\n");
-    }
-    else if (strcmp(PWD, *command) == 0) {
-        pwd();
-    }
-    else if (strcmp(SUMMAX, *command) == 0) {
-        matrix_size = generateRandomValue (MIN, MAX);
-        inputA = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
-        inputB = createRandomMatrix(matrix_size, MINELEMENT, MAXELEMENT);
-        matrixD = createMaxMatrix(inputA, inputB, matrix_size);
-        matrixC = createSumMatrix(matrixD, matrix_size);
+            int pid = fork();
 
-        /* Tests with prints */
-        printf("\nMatrix A (Input)\n");
-        printMatrix(inputA, matrix_size, matrix_size); // Square matrix
-        printf("\nMatrix B (Input)\n");
-        printMatrix(inputA, matrix_size, matrix_size); // Square matrix
-        printf("\nMatrix D (Auxiliar - Max values)\n");
-        printMatrix(matrixD, matrix_size, matrix_size); // Square matrix
-        printf("\nMatrix C (Output - Sum of the max values)\n");
-        printMatrix(matrixC, 1, matrix_size); // Matrix with just 1 row
+            if (pid == 0) {
+                execvp(argv[0], argv);
+                free_cmd(argc, &argv);
+                argv = 0;
+                exit(0);
+            } else {
+                int status;
+                waitpid(pid, &status, 0);
+            }
+        }
 
-        freeMatrix(inputA, matrix_size);
-        freeMatrix(inputB, matrix_size);
-        freeMatrix(matrixD, matrix_size);
-        freeOutput(matrixC, matrix_size);
+        free_cmd(argc, &argv);
+        argv = 0;
     }
-    else if (strcmp(LS, *command) == 0) {
-        ls(*directory);
+}
+
+void parse_cmd(char *cmd, int *argc, char ***argv) {
+    char *arg = strtok(cmd, " \n");
+    char args[256][256];
+
+    // parse command line string and store in a temporary array
+    int i = 0;
+    while (arg != 0) {
+        strcpy(args[i], arg);
+        i++;
+        arg = strtok(0, " \n");
     }
-    else if (strcmp(CD, *command) == 0) {
-        cd(*directory);
+
+    *argc = i;
+
+    // alloc memory for the array, the array must be null terminated, so
+    // we need an extra space in the array
+    *argv = malloc((*argc + 1) * sizeof(char*));
+
+    // alloc and set null pointer at the end of the array
+    (*argv)[*argc] = malloc(1);
+    (*argv)[*argc] = 0;
+
+    // copy the arguments from the temporary array to the output
+    for (i = 0; i < *argc; i++) {
+        (*argv)[i] = malloc(strlen(args[i]) + 1);
+        strcpy((*argv)[i], args[i]);
     }
-    else if (strcmp(EXIT, *command) == 0) {
-        exit(0);
+}
+
+void free_cmd(int argc, char ***argv) {
+    int i;
+    for (i = 0; i <= argc; i++) {
+        free((*argv)[i]);
     }
-    else {
-        printf("Unrecognized command");
-    }
-    
+    free(*argv);
 }
 
 void storeInfo (UserInfo *infoUser) {
@@ -162,7 +193,7 @@ void ls(char *folder) {
         struct dirent * dir; // For the entries of the directory (files, other directories)
         while ((dir = readdir(d)) != NULL) { // If something from the directory couldn't be read
             if(dir-> d_type != DT_DIR) // If the type isn't a directory
-                printf("\t%s%s\n", FILECOLOR, dir->d_name); // \t for having a nested view directory/files
+                printf("\t%s%s\n%s", FILECOLOR, dir->d_name, NORMAL_COLOR); // \t for having a nested view directory/files
             else if(dir -> d_type == DT_DIR && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0 ) { // If the type is a directory
                 printf("%s%s\n", DIRCOLOR, dir->d_name);
                 char d_path[255];
@@ -180,7 +211,7 @@ void ls(char *folder) {
     }
     if (d == NULL) { // If it was not able return the directory by its path
         return;
-    } 
+    }
 }
 
 void cd(char *folder) {
@@ -224,16 +255,7 @@ int main(int argc, char *argv[]) {
         //---------------------------------------------------------------------
         printf("\nThere are %d set variables\n", showEnvironList(firstElement));
     #else
-        char *command = NULL;
-        char *directory = NULL;
-        UserInfo userInformation; /* It doesn't change during the prompt's execution
-                                   * user, host, cwd */
-        storeInfo(&userInformation);
-        do {
-            prompt(userInformation, &command, &directory);
-            free(command);
-            free(directory);
-        } while(strcmp(EXIT,command) != 0); // keep running unless the user types "exit"
+        prompt();
     #endif
     return 0; // Exit the shell
 }
