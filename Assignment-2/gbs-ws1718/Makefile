@@ -13,4 +13,4 @@ gbsh: $(OBJ)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -rf *.o gbsh
+	rm -rf *.o gbsh *.txt

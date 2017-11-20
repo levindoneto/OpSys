@@ -34,4 +34,4 @@ NODE_LIST* unsetEnviron(NODE_LIST *FirstNode, char* varToBeDe);
  * @Parameters: NODE_LIST: First element (shell info)
  * @Return: Int: Amount of set variables in the shell
  */
-int showEnvironList(NODE_LIST *FirstNode);
+int showEnvironList(NODE_LIST *FirstNode, char *output);

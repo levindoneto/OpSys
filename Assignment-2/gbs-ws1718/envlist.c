@@ -23,9 +23,7 @@ NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron) {
             previous = ptaux; // Save the last position of the auxiliary pointer in the previous element
             ptaux = ptaux->next;
             i++;
-        }
-        while(ptaux != NULL);  // Stop condition for the used for this linked list
-        // Close the circular chaining
+        } while(ptaux != NULL);  // Stop condition for the used for this linked list
         previous->next = newElement;    //(*previous).next points to the next element
         newElement->next = NULL; //(*new).next points to the beginning the list
     }
@@ -47,16 +45,17 @@ NODE_LIST* unsetEnviron(NODE_LIST *FirstNode, char* varToBeDel) {
     return FirstNode;
 }
 
-int showEnvironList(NODE_LIST *FirstNode) {
+int showEnvironList(NODE_LIST *FirstNode, char *output) {
     NODE_LIST *ptaux; // Aux which will go through the list
     int counter = 0; // Counter to define the number of set environment variables
-
+    int len = 0;
+    
     if(FirstNode == NULL)
         puts("\nThere's no defined environment variable");
     else {
         ptaux = FirstNode; // The aux points to the first node as well, in order to start going through all the nodes sequentially
         while(ptaux != NULL) {
-            printf("%s %s\n", ptaux->data.envVarId, ptaux->data.envVarValue); // Print "id value"
+            len += sprintf(output + len, "%s %s\n", ptaux->data.envVarId, ptaux->data.envVarValue); // Print "id value"
             ptaux = ptaux->next; // Go to the next list's element
             counter++; // For each node is a new variable
         }

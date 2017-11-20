@@ -68,11 +68,13 @@ void prompt() {
             char path[1024] = "";
 
             if (getcwd(path, sizeof(path)) == 0) {
-                strerror(errno);
-            } else {
+                printf("\n%s", strerror(errno));
+            } 
+            else {
                 if (output_file) {
                     write(output_file, path, strlen(path));
-                } else {
+                } 
+                else {
                     printf("%s", path);
                 }
             }
@@ -136,7 +138,15 @@ void prompt() {
         }
         else if (strcmp(ENVIRON, argv[0]) == 0) { // List set environment variables
             if (argc > 0) {
-                showEnvironList(firstElement);
+                char output[2048];
+                showEnvironList(firstElement, output);
+
+                if (output_file) {
+                    write(output_file, output, strlen(output));
+                } 
+                else {
+                    printf("%s", output);
+                }
 
             } 
             else {
@@ -178,7 +188,7 @@ void prompt() {
 
                 execvp(argv[0], argv);
                 input_file = 0;
-                input_file = 0;
+                output_file = 0;
                 free_cmd(argc, &argv, &input_path, &output_path);
                 exit(0);
             } else {
@@ -188,7 +198,7 @@ void prompt() {
         }
 
         input_file = 0;
-        input_file = 0;
+        output_file = 0;
         free_cmd(argc, &argv, &input_path, &output_path);
     }
     free(firstElement);
