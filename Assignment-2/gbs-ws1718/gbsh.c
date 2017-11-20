@@ -32,7 +32,7 @@
 #define DIRCOLOR  "\x1B[32m" // Green
 #define FILECOLOR  "\x1B[34m" // Blue
 #define NULLSTR ""
-#define TESTENVLIST 0 // Change to 0 to execute the shell normally
+#define TESTENVLIST 0 // Change to 1 to execute the envilist test
 
 void prompt() {
     UserInfo userInformation;
@@ -157,8 +157,13 @@ void prompt() {
         else if (strcmp(SETENV, argv[0]) == 0) { // List set environment variables
             if (argc > 1) {
                 ENV_VAR newEnvVar; // id and value
+                if (argv[2] == NULL) { // If the user hasn't given a value for the new env var
+                    strcpy(newEnvVar.envVarValue, "");
+                }
+                else {
+                    strcpy(newEnvVar.envVarValue, argv[2]);
+                }
                 strcpy(newEnvVar.envVarId, argv[1]);
-                strcpy(newEnvVar.envVarValue, argv[2]);
                 firstElement = setEnviron(firstElement, newEnvVar);
             }
             else {

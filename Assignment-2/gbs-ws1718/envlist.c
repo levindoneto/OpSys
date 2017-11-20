@@ -12,7 +12,6 @@ NODE_LIST* setUpShellEnv(NODE_LIST *FirstNode) {
     ENV_VAR shellInfo; // It contains the information of the shell executable
     char path[1024] = "";
     char shellPath[1024] = ""; // For the executable of the shell
-    printf("/cwd:: %s", getcwd(path, sizeof(path)));
     strcat(shellPath, getcwd(path, sizeof(path)));
     strcat(shellPath, "/gbsh");
     strcpy(shellInfo.envVarId, "shell");
