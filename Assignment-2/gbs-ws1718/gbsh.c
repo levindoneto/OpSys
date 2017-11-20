@@ -42,7 +42,8 @@ void prompt() {
     char *input_path = 0;
     char *output_path = 0;
     NODE_LIST* firstElement; // Pointer for the first element of the list
-    firstElement = initEnvironList(); // Initialize the circular list of environment variables
+    firstElement = initEnvironList(); // Initialize the simple linked list of environment variables
+    firstElement = setUpShellEnv(firstElement); // Add shell = <pathname>/gbsh as the first env var
     while (true) {
         storeInfo(&userInformation);
         printf("\n%s@%s: %s > ", userInformation.user, userInformation.host, userInformation.cwd);
@@ -159,7 +160,7 @@ void prompt() {
                 strcpy(newEnvVar.envVarId, argv[1]);
                 strcpy(newEnvVar.envVarValue, argv[2]);
                 firstElement = setEnviron(firstElement, newEnvVar);
-            } 
+            }
             else {
                 printf("\nsetenv needs two parameters:\nid and value\nin order to function properly\n");
             }
@@ -342,7 +343,7 @@ int main(int argc, char *argv[]) {
         int wish; // Yes(1) / No(2)
         char elemToBeDel[100];
 
-        firstElement = initEnvironList(); // Initialize the circular list of environment variables
+        firstElement = initEnvironList(); // Initialize the simple linked list of environment variables
 
         printf("\nEnviron\n\n");
         do {

@@ -1,10 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "envlist.h"
 
 NODE_LIST* initEnvironList(void) {
     return NULL;
+}
+
+NODE_LIST* setUpShellEnv(NODE_LIST *FirstNode) {
+    ENV_VAR shellInfo; // It contains the information of the shell executable
+    char path[1024] = "";
+    char shellPath[1024] = ""; // For the executable of the shell
+    printf("/cwd:: %s", getcwd(path, sizeof(path)));
+    strcat(shellPath, getcwd(path, sizeof(path)));
+    strcat(shellPath, "/gbsh");
+    strcpy(shellInfo.envVarId, "shell");
+    strcpy(shellInfo.envVarValue, shellPath);
+    FirstNode = setEnviron(FirstNode, shellInfo);
+    return FirstNode;
 }
 
 NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron) {
