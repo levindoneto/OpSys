@@ -27,18 +27,30 @@ NODE_LIST* setEnviron(NODE_LIST *FirstNode, ENV_VAR dataEnviron) {
     newElement = (NODE_LIST*) malloc(sizeof(NODE_LIST)); // Allocate memory for the new list's node
     newElement->data = dataEnviron; // Insert data into the new element
     int i = 0; // Counter of shell's environment variables
+    int varSet = 0;
     if(FirstNode == NULL) {
         FirstNode = newElement; // Pointer, which points to the beginning, receives the new element, which also is gonna be put in the beginning of the list
         newElement->next = NULL; // New element is the last element of the linked list, so it points to null
     }
     else {
         do {
+            if (strcmp(ptaux->data.envVarId, dataEnviron.envVarId) == 0) { // If the environment variable already exists
+                strcpy(ptaux->data.envVarValue, dataEnviron.envVarValue);
+                varSet = 1;
+            }
             previous = ptaux; // Save the last position of the auxiliary pointer in the previous element
             ptaux = ptaux->next;
             i++;
+            
         } while(ptaux != NULL);  // Stop condition for the used for this linked list
-        previous->next = newElement;    //(*previous).next points to the next element
-        newElement->next = NULL; //(*new).next points to the beginning the list
+        
+        if (varSet != 1) { // The variable hadn't been defined before
+            previous->next = newElement;    //(*previous).next points to the next element
+            newElement->next = NULL; //(*new).next points to the beginning the list
+        }
+        else {
+            previous->next = NULL;
+        }    
     }
     return FirstNode; // It always comes to the beginning of the list
 }

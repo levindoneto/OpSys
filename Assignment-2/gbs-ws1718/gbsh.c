@@ -141,17 +141,15 @@ void prompt() {
             if (argc > 0) {
                 char output[2048];
                 showEnvironList(firstElement, output);
-
                 if (output_file) {
                     write(output_file, output, strlen(output));
                 } 
                 else {
                     printf("%s", output);
                 }
-
             } 
             else {
-                printf("\Error\n");
+                printf("%s", strerror(errno));
             }
         }
         else if (strcmp(SETENV, argv[0]) == 0) { // List set environment variables
@@ -306,12 +304,13 @@ void ls(char *folder, char *output) {
 
         int len = 0;
         while ((entry = readdir(dir)) != 0) {
-            // if entry is a file
+            // If entry is a file
             if (entry->d_type != DT_DIR) {
                 len += sprintf(output + len, "%s%s\n%s", FILECOLOR, entry->d_name, NORMAL_COLOR);
 
-            // if entry is a directory
-            } else if (entry->d_type == DT_DIR
+            // If entry is a directory
+            } 
+            else if (entry->d_type == DT_DIR
                        && strcmp(entry->d_name,".") != 0
                        && strcmp(entry->d_name,"..") != 0 ) {
                 len += sprintf(output + len, "%s%s/%s\n", DIRCOLOR, entry->d_name, NORMAL_COLOR);
