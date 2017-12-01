@@ -13,6 +13,10 @@ typedef struct UserInformation {
     char *host;
     char *cwd;
 } UserInfo;
+
+struct command {
+    char **argv;
+};
 /******************************************************************************/
 
 /************************ Prototypes of used functions ************************/
@@ -30,13 +34,16 @@ void prompt();
                 argv, array of arguments output
  * @Return void
  */
-void parse_cmd(char *cmd, int *argc, char ***argv, char **input_path, char **output_path);
+void parse_cmd(char *cmd, int *cmdc, struct command *cmdv, char *input_path, char *output_path, bool *background);
 
 /* Free the allocated memory form parse_cmd call
  *  @Parameters: argc, number of arguments
                  argv, arguments
  */
-void free_cmd(int argc, char ***argv, char **input_path, char **output_path);
+void free_cmd(int cmdc, struct command *cmdv);
+
+int spawn_proc(int in, int out, char **argv);
+void exec_commands(int in, int out, int n, struct command *cmd);
 
 /* It stores information of the current user in a proper struct
  * @Parameters: Struct UserInfo

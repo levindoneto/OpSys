@@ -33,55 +33,177 @@
 #define FILECOLOR  "\x1B[34m" // Blue
 #define NULLSTR ""
 
+NODE_LIST* firstElement; // Pointer for the first element of the list
+
 void prompt() {
     UserInfo userInformation;
     char cmd[1024];
-    int argc = 0;
-    char **argv = 0;
-    char *input_path = 0;
-    char *output_path = 0;
+    int input;
+    int output;
+    char input_path[1024] = "";
+    char output_path[1024] = "";
+    int cmdc = 0;
+    struct command cmdv[256];
+    int status;
     bool background = false;
-    NODE_LIST* firstElement; // Pointer for the first element of the list
-    firstElement = initEnvironList(); // Initialize the simple linked list of environment variables
-    firstElement = setUpShellEnv(firstElement); // Add shell = <pathname>/gbsh as the first env var
     while (true) {
         if (background) {
             break;
         }
 
-        storeInfo(&userInformation);
-        printf("\n%s@%s: %s > ", userInformation.user, userInformation.host, userInformation.cwd);
-        fgets(cmd, sizeof(cmd), stdin);
-        //strcpy(cmd, "ls < input > output");
-        parse_cmd(cmd, &argc, &argv, &input_path, &output_path);
+        waitpid(-1, &status, WNOHANG);
 
-        if (argc == 0) {
+        storeInfo(&userInformation);
+        printf("\n%s%s@%s: %s > ", NORMAL_COLOR, userInformation.user, userInformation.host, userInformation.cwd);
+        fgets(cmd, sizeof(cmd), stdin);
+        parse_cmd(cmd, &cmdc, cmdv, input_path, output_path, &background);
+
+        if (cmdc == 0) {
             continue;
         }
 
-        if (strcmp(argv[argc - 1], "&") == 0) {
-            argv[argc - 1] = 0;
-            free(argv[argc]);
-            argc = argc - 1;
+        if (strcmp(EXIT, cmdv[0].argv[0]) == 0) {
+            break;
+        }
 
+        if (background) {
             int pid = fork();
             if (pid == 0) {
                 setpgid(0, 0);
-                background = true;
             }
             else {
+                background = false;
+                free_cmd(cmdc, cmdv);
+                cmdc = 0;
                 continue;
             }
         }
 
-        int input_file = 0;
-        if (input_path) {
-            input_file = open(input_path, O_RDONLY);
+        input = STDIN_FILENO;
+        output = STDOUT_FILENO;
+
+        if (strcmp(input_path, "") != 0) {
+            input = open(input_path, O_RDONLY);
         }
 
-        int output_file = 0;
-        if (output_path) {
-            output_file = open(output_path, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
+        if (strcmp(output_path, "") != 0) {
+            output = open(output_path, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
+        }
+
+        exec_commands(input, output, cmdc, cmdv);
+        free_cmd(cmdc, cmdv);
+        cmdc = 0;
+
+        if (input != STDIN_FILENO) {
+            close(input);
+            strcpy(input_path, "");
+        }
+
+        if (output != STDOUT_FILENO) {
+            close(output);
+            strcpy(output_path, "");
+        }
+    }
+
+    free(firstElement);
+}
+
+void parse_cmd(char *cmd, int *cmdc, struct command *cmdv, char *input_path, char *output_path, bool *background) {
+    int cmd_count = 0;
+    char *arg = strtok(cmd, " \n");
+    char args[256][256];
+
+    if (arg == 0) {
+        return;
+    }
+
+    // parse command line string and store in a temporary array
+    int i = 0;
+    while (arg != 0) {
+        if (strcmp(arg, "<") == 0)  {
+            arg = strtok(0, " \n");
+            if (arg != 0) {
+                strcpy(input_path, arg);
+            }
+        }
+        else if (strcmp(arg, ">") == 0)  {
+            arg = strtok(0, " \n");
+            if (arg != 0) {
+                strcpy(output_path, arg);
+            }
+        }
+        else if (strcmp(arg, "&") == 0) {
+            *background = true;
+        }
+        else if (strcmp(arg, "|") == 0) {
+            int argc = i;
+            cmdv[cmd_count].argv = malloc((argc + 1) * sizeof(char*));
+            cmdv[cmd_count].argv[argc] = malloc(1);
+            cmdv[cmd_count].argv[argc] = 0;
+
+            for (i = 0; i < argc; i++) {
+                cmdv[cmd_count].argv[i] = malloc(strlen(args[i]) + 1);
+                strcpy(cmdv[cmd_count].argv[i], args[i]);
+            }
+
+            cmd_count += 1;
+            i = 0;
+        }
+        else {
+            strcpy(args[i], arg);
+            i++;
+        }
+
+        arg = strtok(0, " \n");
+    }
+
+    int argc = i;
+
+    // alloc memory for the array, the array must be null terminated, so
+    // we need an extra space in the array
+    cmdv[cmd_count].argv = malloc((argc + 1) * sizeof(char*));
+
+    // alloc and set null pointer at the end of the array
+    cmdv[cmd_count].argv[argc] = malloc(1);
+    cmdv[cmd_count].argv[argc] = 0;
+
+    // copy the arguments from the temporary array to the output
+    for (i = 0; i < argc; i++) {
+        cmdv[cmd_count].argv[i] = malloc(strlen(args[i]) + 1);
+        strcpy(cmdv[cmd_count].argv[i], args[i]);
+    }
+
+    cmd_count += 1;
+    *cmdc = cmd_count;
+}
+
+void free_cmd(int cmdc, struct command *cmdv) {
+    int argc;
+
+    int i;
+    for (i = 0; i < cmdc; i++) {
+        argc = 0;
+        while (cmdv[i].argv[argc] != 0) {
+            free(cmdv[i].argv[argc]);
+            argc++;
+        }
+        free(cmdv[i].argv[argc]);
+        free(cmdv[i].argv);
+    }
+}
+
+int spawn_proc(int in, int out, char **argv) {
+    int pid = fork();
+
+    if (pid == 0) {
+        if (in != STDIN_FILENO) {
+            dup2(in, STDIN_FILENO);
+            close(in);
+        }
+
+        if (out != STDOUT_FILENO) {
+            dup2(out, STDOUT_FILENO);
+            close(out);
         }
 
         if (strcmp(PWD, argv[0]) == 0) {
@@ -91,12 +213,7 @@ void prompt() {
                 printf("\n%s", strerror(errno));
             }
             else {
-                if (output_file) {
-                    write(output_file, path, strlen(path));
-                }
-                else {
-                    printf("%s", path);
-                }
+                printf("%s", path);
             }
         }
         else if (strcmp(SUMMAX, argv[0]) == 0) {
@@ -130,26 +247,20 @@ void prompt() {
         else if (strcmp(LS, argv[0]) == 0) {
             char input[1024] = "";
 
-            if (input_file) {
-                read(input_file, input, sizeof(input));
+            if (in != STDIN_FILENO) {
+                read(STDIN_FILENO, input, sizeof(input));
                 strcpy(input, strtok(input, "\n"));
             }
-            else if (argc > 1) {
+            else if (argv[1] != 0) {
                 strcpy(input, argv[1]);
             }
 
             char output[2048];
             ls(input, output);
-
-            if (output_file) {
-                write(output_file, output, strlen(output));
-            }
-            else {
-                printf("%s", output);
-            }
+            printf("%s", output);
         }
         else if (strcmp(CD, argv[0]) == 0) {
-            if (argc > 1) {
+            if (argv[1] != 0) {
                 cd(argv[1]);
             }
             else {
@@ -157,24 +268,14 @@ void prompt() {
             }
         }
         else if (strcmp(ENVIRON, argv[0]) == 0) { // List set environment variables
-            if (argc > 0) {
-                char output[2048];
-                showEnvironList(firstElement, output);
-                if (output_file) {
-                    write(output_file, output, strlen(output));
-                }
-                else {
-                    printf("%s", output);
-                }
-            }
-            else {
-                printf("%s", strerror(errno));
-            }
+            char output[2048];
+            showEnvironList(firstElement, output);
+            printf("%s", output);
         }
         else if (strcmp(SETENV, argv[0]) == 0) { // List set environment variables
-            if (argc > 1) {
+            if (argv[1] != 0) {
                 ENV_VAR newEnvVar; // id and value
-                if (argv[2] == NULL) { // If the user hasn't given a value for the new env var
+                if (argv[2] == 0) { // If the user hasn't given a value for the new env var
                     strcpy(newEnvVar.envVarValue, "");
                 }
                 else {
@@ -188,99 +289,45 @@ void prompt() {
             }
         }
         else if (strcmp(UNSETENV, argv[0]) == 0) { // List set environment variables
-            if (argc > 1) {
+            if (argv[1] != 0) {
                 firstElement = unsetEnviron(firstElement, argv[1]);
             }
             else {
                 printf("\nunsetenv needs one parameter:\nid of the environment variable\nin order to function properly\n");
             }
         }
-        else if (strcmp(EXIT, argv[0]) == 0) {
-            break;
-        }
         else {
-            int pid = fork();
-
-            if (pid == 0) {
-                if (input_file) {
-                    dup2(input_file, STDIN_FILENO);
-                }
-                if (output_file) {
-                    dup2(output_file, STDOUT_FILENO);
-                }
-
-                execvp(argv[0], argv);
-                free_cmd(argc, &argv, &input_path, &output_path);
-                exit(0);
-            } else {
-                int status;
-                waitpid(pid, &status, 0);
-            }
+            return execvp(argv[0], argv);
         }
 
-        free_cmd(argc, &argv, &input_path, &output_path);
+        exit(0);
     }
-    free(firstElement);
+
+    return pid;
 }
 
-void parse_cmd(char *cmd, int *argc, char ***argv, char **input_path, char **output_path) {
-    char *arg = strtok(cmd, " \n");
-    char args[256][256];
+void exec_commands(int input, int output, int n, struct command *cmd) {
+    int pid;
+    int status;
+    int in = input;
+    int fd[2];
 
-    // parse command line string and store in a temporary array
-    int i = 0;
-    while (arg != 0) {
-        if (strcmp(arg, "<") == 0)  {
-            arg = strtok(0, " \n");
-            if (arg != 0) {
-                *input_path = malloc(strlen(arg) + 1);
-                strcpy(*input_path, arg);
-            }
-        }
-        else if (strcmp(arg, ">") == 0)  {
-            arg = strtok(0, " \n");
-            if (arg != 0) {
-                *output_path = malloc(strlen(arg) + 1);
-                strcpy(*output_path, arg);
-            }
-        }
-        else {
-            strcpy(args[i], arg);
-            i++;
-        }
-
-        arg = strtok(0, " \n");
-    }
-
-    *argc = i;
-
-    // alloc memory for the array, the array must be null terminated, so
-    // we need an extra space in the array
-    *argv = malloc((*argc + 1) * sizeof(char*));
-
-    // alloc and set null pointer at the end of the array
-    (*argv)[*argc] = malloc(1);
-    (*argv)[*argc] = 0;
-
-    // copy the arguments from the temporary array to the output
-    for (i = 0; i < *argc; i++) {
-        (*argv)[i] = malloc(strlen(args[i]) + 1);
-        strcpy((*argv)[i], args[i]);
-    }
-}
-
-void free_cmd(int argc, char ***argv, char **input_path, char **output_path) {
     int i;
-    for (i = 0; i <= argc; i++) {
-        free((*argv)[i]);
+    for (i = 0; i < n - 1; i++) {
+        pipe(fd);
+        pid = spawn_proc(in, fd[1], cmd[i].argv);
+        waitpid(pid, &status, 0);
+        close(fd[1]);
+
+        if (in != STDIN_FILENO) {
+            close(in);
+        }
+
+        in = fd[0];
     }
 
-    free(*argv);
-    *argv = 0;
-    free(*input_path);
-    *input_path = 0;
-    free(*output_path);
-    *output_path = 0;
+    pid = spawn_proc(in, output, cmd[n - 1].argv);
+    waitpid(pid, &status, 0);
 }
 
 void storeInfo (UserInfo *infoUser) {
@@ -321,14 +368,14 @@ void ls(char *folder, char *output) {
         while ((entry = readdir(dir)) != 0) {
             // If entry is a file
             if (entry->d_type != DT_DIR) {
-                len += sprintf(output + len, "%s%s\n%s", FILECOLOR, entry->d_name, NORMAL_COLOR);
+                len += sprintf(output + len, "%s%s\n", FILECOLOR, entry->d_name);
 
             // If entry is a directory
             }
             else if (entry->d_type == DT_DIR
                        && strcmp(entry->d_name,".") != 0
                        && strcmp(entry->d_name,"..") != 0 ) {
-                len += sprintf(output + len, "%s%s/%s\n", DIRCOLOR, entry->d_name, NORMAL_COLOR);
+                len += sprintf(output + len, "%s%s/\n", DIRCOLOR, entry->d_name);
             }
         }
 
@@ -355,6 +402,8 @@ void cd(char *folder) {
 }
 
 int main(int argc, char *argv[]) {
+    firstElement = initEnvironList(); // Initialize the simple linked list of environment variables
+    firstElement = setUpShellEnv(firstElement); // Add shell = <pathname>/gbsh as the first env var
     prompt();
     return 0; // Exit the shell
 }
