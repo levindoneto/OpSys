@@ -47,10 +47,12 @@ void prompt() {
     int status;
     bool background = false;
     while (true) {
+        // break if executed background command
         if (background) {
             break;
         }
 
+        // check for any child process that finish
         waitpid(-1, &status, WNOHANG);
 
         storeInfo(&userInformation);
@@ -62,10 +64,12 @@ void prompt() {
             continue;
         }
 
+        // break on exit command
         if (strcmp(EXIT, cmdv[0].argv[0]) == 0) {
             break;
         }
 
+        // fork on background execution
         if (background) {
             int pid = fork();
             if (pid == 0) {
@@ -82,6 +86,7 @@ void prompt() {
         input = STDIN_FILENO;
         output = STDOUT_FILENO;
 
+        // open input and output files if given
         if (strcmp(input_path, "") != 0) {
             input = open(input_path, O_RDONLY);
         }
@@ -94,6 +99,7 @@ void prompt() {
         free_cmd(cmdc, cmdv);
         cmdc = 0;
 
+        // close input and output files if given
         if (input != STDIN_FILENO) {
             close(input);
             strcpy(input_path, "");
@@ -117,24 +123,27 @@ void parse_cmd(char *cmd, int *cmdc, struct command *cmdv, char *input_path, cha
         return;
     }
 
-    // parse command line string and store in a temporary array
     int i = 0;
     while (arg != 0) {
+        // look for input redirection
         if (strcmp(arg, "<") == 0)  {
             arg = strtok(0, " \n");
             if (arg != 0) {
                 strcpy(input_path, arg);
             }
         }
+        // look for output redirection
         else if (strcmp(arg, ">") == 0)  {
             arg = strtok(0, " \n");
             if (arg != 0) {
                 strcpy(output_path, arg);
             }
         }
+        // look for background execution
         else if (strcmp(arg, "&") == 0) {
             *background = true;
         }
+        // look for command piping
         else if (strcmp(arg, "|") == 0) {
             int argc = i;
             cmdv[cmd_count].argv = malloc((argc + 1) * sizeof(char*));
@@ -314,6 +323,9 @@ void exec_commands(int input, int output, int n, struct command *cmd) {
 
     int i;
     for (i = 0; i < n - 1; i++) {
+        // open pipe for command communication
+        // process writes to write end of pipe
+        // next process reads from read end of pipe
         pipe(fd);
         pid = spawn_proc(in, fd[1], cmd[i].argv);
         waitpid(pid, &status, 0);
@@ -326,6 +338,8 @@ void exec_commands(int input, int output, int n, struct command *cmd) {
         in = fd[0];
     }
 
+    // last process reads from read end of last pipe
+    // and writes to output file or stdout
     pid = spawn_proc(in, output, cmd[n - 1].argv);
     waitpid(pid, &status, 0);
 }

@@ -42,7 +42,19 @@ void parse_cmd(char *cmd, int *cmdc, struct command *cmdv, char *input_path, cha
  */
 void free_cmd(int cmdc, struct command *cmdv);
 
+/* Spawn new process
+ * @Parameters: in, input file
+ *              out, output file
+ *              argv, NULL terminated array of arguments
+ */
 int spawn_proc(int in, int out, char **argv);
+
+/* Execute list of commands, piping the output of one to the input of the other
+ * @Parameters: in, input file
+ *              out, output file
+ *              n, number of commands to execute
+ *              cmd, array of commands
+ */
 void exec_commands(int in, int out, int n, struct command *cmd);
 
 /* It stores information of the current user in a proper struct
