@@ -1,11 +1,6 @@
-// structure for the shared memory segment
+static const char *SHARED_MEMORY = "/gbsd";
 
-typedef struct {
-	
-	// ...
-	
-	// ...
-	
-	// ...
-
-} shmseg_t;
+struct shared_memory {
+    int n;
+    long long int fibn;
+};

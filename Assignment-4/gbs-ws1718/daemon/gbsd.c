@@ -26,7 +26,6 @@ void log_message(const char *filename, const char* format, ...) {
 }
 
 int main(int argc, char *argv[]) {
-
     // fork off the parent process
     pid_t pid = fork();
 
@@ -45,13 +44,13 @@ int main(int argc, char *argv[]) {
     pid_t sid = setsid();
 
     if (sid < 0) {
-        // TODO log error
+        log_message(LOGFILE, "%s", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
     // change directory to root
     if (chdir("/") < 0) {
-        // TODO log error
+        log_message(LOGFILE, "%s", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
