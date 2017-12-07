@@ -1,2 +1,5 @@
 *.o
 gbsh
+gbsd
+ipcd
+ipc-client
