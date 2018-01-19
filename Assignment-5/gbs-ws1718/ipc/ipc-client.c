@@ -34,6 +34,21 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    // open process semaphore
+    sem_t *sem_process;
+    sem_process = sem_open("/fibonacciproc", 0);
+
+    if (sem_process == SEM_FAILED) {
+        perror("Open proc semaphore");
+        exit(EXIT_FAILURE);
+    }
+
+    // acquire resource
+    if (sem_wait(sem_process) < 0) {
+        perror("Failed to get resource");
+        exit(EXIT_FAILURE);
+    }
+
     // open shared memory file
     int shm_fd = shm_open(SHARED_MEMORY, O_RDWR, S_IRUSR | S_IWUSR);
 
@@ -96,6 +111,11 @@ int main(int argc, char *argv[]) {
     printf("Fibonacci %d = %lld\n", shm->n, shm->fibn);
 
     close(shm_fd);
+
+    if (sem_post(sem_process) < 0) {
+        perror("Semaphore post");
+        exit(EXIT_FAILURE);
+    }
 
     return 0;
 }

@@ -121,6 +121,14 @@ int main(int argc, char *argv[]) {
     shm->fibn = 0;
 
     // open semaphores
+    sem_t *sem_process;
+    sem_process = sem_open("/fibonacciproc", O_CREAT, S_IRUSR | S_IWUSR, 1);
+
+    if (sem_process == SEM_FAILED) {
+        log_message(LOGFILE, "Open in semaphore: %s", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
     sem_t *sem_in;
     sem_in = sem_open("/fibonacciin", O_CREAT, S_IRUSR | S_IWUSR, 0);
 
